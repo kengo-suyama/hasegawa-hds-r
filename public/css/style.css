@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.question {
+    margin-bottom: 20px;
+}
+
+.button-group {
+    margin-bottom: 10px;
+}
+
+.btn {
+    margin-right: 10px;
+    padding: 5px 10px;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
