@@ -1,0 +1,159 @@
+/* styles.css */
+
+/* Google Fonts */
+/* Suggestion: Consider moving this import to a <link> tag in HTML to avoid render-blocking during CSS parsing. */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Satisfy&display=swap');
+
+/* Base styling */
+body {
+    background-color: #ffd1dc;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1.2rem;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Ensure content sits above petals */
+.content-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+/* Petal container */
+.falling-petals {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Petal element */
+.petal {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-image: url('../storage/images/petal.png');
+    background-size: contain;
+    opacity: 0.8;
+    /* Suggestion: Add "will-change: transform" for smoother animations on some browsers */
+    will-change: transform;
+    animation: fall var(--fall-duration, 12s) linear infinite;
+}
+
+/* Fall animation */
+@keyframes fall {
+    0% {
+        transform: translateY(-50px) rotate(0deg);
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0.5;
+    }
+}
+
+/* Header styling */
+header {
+    border-bottom: 2px solid #ff1493;
+    padding: 1rem 0;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+}
+
+/* Social icons */
+.social-icons a {
+    font-size: 1.8rem;
+    color: #555;
+    margin-left: 0.8rem;
+    transition: color .3s;
+}
+.social-icons a:hover {
+    color: #ff1493;
+}
+
+/* Suggestion: Combine repetitive selector rules where possible to reduce file size. */
+
+/* Title */
+.title-main {
+    font-family: 'Satisfy', cursive;
+    font-size: 4.5rem;
+    color: #ff1493;
+    text-shadow:
+        0 0 5px #ff1493,
+        0 0 10px #ff1493,
+        0 0 20px #ff1493,
+        0 0 30px #ff1493;
+    animation: neon 1.5s infinite alternate;
+    margin: 0;
+}
+@keyframes neon {
+    from {
+        text-shadow:
+            0 0 5px #ff1493,
+            0 0 10px #ff1493;
+    }
+    to {
+        text-shadow:
+            0 0 10px #ff1493,
+            0 0 20px #ff1493;
+    }
+}
+
+.title-sub {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ff1493;
+    text-shadow: 0 0 4px #fff;
+    margin: 0;
+}
+
+/* Intro fade-in */
+.intro {
+    font-size: 1.5rem;
+    opacity: 0;
+    animation: fadeIn 4s forwards;
+    margin: 2rem 0;
+}
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+/* Illustration styling */
+.img-custom {
+    max-width: 60%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Button */
+.btn-custom {
+    color: #ff1493;
+    font-weight: bold;
+    border: 2px solid #ff1493;
+    background-color: transparent;
+    transition: background-color .3s, color .3s;
+}
+.btn-custom:hover {
+    background-color: #ff1493;
+    color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .title-main { font-size: 2.5rem; }
+    .title-sub  { font-size: 1.8rem; }
+    .logo       { width: 70px; }
+    .img-custom { max-width: 80%; }
+}

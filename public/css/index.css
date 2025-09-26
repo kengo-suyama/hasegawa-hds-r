@@ -1,0 +1,123 @@
+/* index.css: index.blade.php のインラインスタイルを外出し */
+@import url('https://fonts.googleapis.com/css2?family=Satisfy&display=swap');
+
+body {
+  background-color: #ffd1dc;
+  font-size: 1.2rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  position: relative;
+}
+
+.logo {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 15%;
+  height: auto;
+  border-radius: 15px;
+}
+
+.title-wrapper {
+  text-align: center;
+  width: 100%;
+  margin-top: 3rem;
+}
+
+.title-main {
+  font-size: 3.2rem;
+  font-family: '游ゴシック体', 'Yu Gothic', 'メイリオ', Meiryo, sans-serif;
+  color: #222;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.title-sub {
+  font-size: 2rem;
+  font-family: '游ゴシック体', 'Yu Gothic', 'メイリオ', Meiryo, sans-serif;
+  font-weight: bold;
+  color: #444;
+  margin-top: -10px;
+  display: block;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.social-icons {
+  text-align: right;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.social-icons a {
+  font-size: 2rem;
+  color: inherit;
+}
+
+main p {
+  font-size: 1.5rem;
+  opacity: 0;
+  animation: fadeIn 5s forwards;
+  margin-top: 3rem;
+}
+
+.btn-custom {
+  color: #ff1493;
+  font-size: 1.5rem;
+  font-weight: bold;
+  -webkit-text-stroke: 1px #fff;
+  background-color: transparent;
+  border: 2px solid #ff1493;
+  display: inline-block;
+  margin-top: 3rem;
+}
+
+.img-custom {
+  width: 60%;
+  height: auto;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  margin-top: 3rem;
+}
+
+.delayed-text {
+  margin-top: 1.5rem;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .title-main { font-size: 2.5rem; }
+  .title-sub { font-size: 1.8rem; }
+  .logo { width: 30%; }
+  .img-custom { width: 70%; }
+}
+
+.falling-petals {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+#sakura-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  display: block;
+}
