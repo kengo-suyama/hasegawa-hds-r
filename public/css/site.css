@@ -8,10 +8,12 @@
 }
 
 html,body{height:100%;}
+/* 本文: 高齢者にも見やすいフォントサイズとコントラスト */
 body {
   background-color: var(--bg-pink);
-  font-size: 1.2rem;
+  font-size: 1.25rem; /* 少し大きめ */
   color: var(--text-dark);
+  -webkit-font-smoothing:antialiased;
 }
 
 /* header */
@@ -59,20 +61,63 @@ main p{ font-size:1.5rem; opacity:0; animation:fadeIn 5s forwards; margin-top:3r
 
 .btn-custom{
   color:var(--accent);
-  font-size:1.5rem;
+  font-size:1.6rem; /* タッチしやすく少し大きめ */
   font-weight:700;
   background-color:transparent;
   border:2px solid var(--accent);
   display:inline-block;
   margin-top:3rem;
+  padding:0.6rem 1rem; /* タッチ領域を広げる */
 }
 
 .img-custom{ width:60%; height:auto; border-top-left-radius:20px; border-top-right-radius:20px; margin-top:3rem; }
 .delayed-text{ margin-top:1.5rem; }
 
 @keyframes fadeIn{ to{ opacity:1; } }
-@media (max-width:768px){ .title-main{ font-size:2.5rem;} .title-sub{ font-size:1.8rem;} .logo{ width:30%; } .img-custom{ width:70%; } }
+@media (max-width:768px){
+  .title-main{ font-size:2.2rem; }
+  .title-sub{ font-size:1.6rem; }
+  .logo{ width:30%; }
+  .img-custom{ width:70%; }
+  .btn-custom{ font-size:1.25rem; padding:0.5rem 0.9rem; }
+}
 
 /* 桜関連 */
 .falling-petals{ position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; }
 #sakura-canvas{ position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:1; display:block; }
+
+/* ==========================
+   設問8: 画像表示のスタイル
+   高齢者向けに大きめ・高コントラスト・レスポンシブ
+   ========================== */
+.item-images{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:8px;
+}
+
+.item-images img{
+  /* モーダル内で目立つ大きさにする */
+  width:18%; /* デスクトップでは5枚が横並びになるように */
+  height:auto;
+  border:3px solid #ffffff; /* 白枠で見切れをはっきり */
+  border-radius:12px;
+  background-color:#fff; /* コントラスト確保 */
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+  padding:6px; /* 余白でアイテムを見やすく */
+}
+
+/* モーダルが狭い場合やタブレット/スマホ: 縦積みにして大きく表示 */
+@media (max-width: 992px) {
+  .item-images{ flex-direction:row; gap:10px; }
+  .item-images img{ width:20%; }
+}
+
+@media (max-width: 768px) {
+  .item-images{ flex-direction:column; align-items:center; }
+  .item-images img{ width:80%; max-width:360px; margin-bottom:8px; }
+  /* カウントダウンメッセージを目立たせる */
+  #q8CountdownMessage{ font-size:1.1rem; }
+}

@@ -133,43 +133,32 @@
       声をかけ、患者様が安心できるように努めてください。
     </p>
 
-    <!-- 生年月日入力フォーム -->
+    <!-- 生年月日入力フォーム (プルダウン: 西暦年 + 月 + 日) -->
     <div class="form-inline mb-3">
-      <label for="birthEra" class="mr-2">元号:</label>
-      <select class="form-control mr-2" id="birthEra">
-        <option value="showa">昭和</option>
-        <option value="heisei">平成</option>
-        <option value="reiwa">令和</option>
-      </select>
-      <label for="birthYear" class="mr-2">年:</label>
-      <input
-        type="number"
-        class="form-control mr-2"
-        id="birthYear"
-        placeholder="例: 50"
-        style="width: 80px;"
-        min="1"
-        max="99" />
+      <label for="birthYear" class="mr-2">西暦:</label>
+      <select class="form-control mr-2" id="birthYear" style="width: 140px;"></select>
+
       <label for="birthMonth" class="mr-2">月:</label>
-      <input
-        type="number"
-        class="form-control mr-2"
-        id="birthMonth"
-        placeholder="例: 5"
-        style="width: 80px;"
-        min="1"
-        max="12" />
+      <select class="form-control mr-2" id="birthMonth" style="width: 90px;">
+        @for ($i = 1; $i <= 12; $i++)
+          <option value="{{ $i }}">{{ $i }}月</option>
+          @endfor
+      </select>
+
       <label for="birthDay" class="mr-2">日:</label>
-      <input
-        type="number"
-        class="form-control"
-        id="birthDay"
-        placeholder="例: 20"
-        style="width: 80px;"
-        min="1"
-        max="31" />
+      <select class="form-control" id="birthDay" style="width: 90px;">
+        @for ($d = 1; $d <= 31; $d++)
+          <option value="{{ $d }}">{{ $d }}日</option>
+          @endfor
+      </select>
     </div>
-    <button class="btn btn-primary" onclick="calculateAge()">年齢を計算</button>
+    <div class="d-flex mb-2" style="gap:8px;">
+      <button class="btn btn-primary" onclick="calculateAge()">年齢を計算</button>
+      <button class="btn btn-warning" id="birthUnknownBtn" onclick="markBirthUnknown()">生年月日が不明瞭な場合はこちら</button>
+    </div>
+
+    <!-- 生年月日不明時のフラッシュメッセージ -->
+    <div id="birthUnknownFlash" style="display:none;" class="alert alert-warning" role="alert"></div>
 
     <div class="mt-3" id="calculatedAgeArea" style="display: none;">
       <p>推定年齢: <span id="calculatedAgeSpan" style="font-weight:bold;"></span> 歳</p>
@@ -270,6 +259,10 @@
           </button>
         </div>
         <div class="modal-body">
+          <!-- Q1スキップ通知領域（必要時にJSで内容を挿入） -->
+          <div id="q1SkipNotice"></div>
+          <!-- 設問2の正答日表示（検査者用） -->
+          <div id="q2CorrectDate" style="margin-bottom:8px;"></div>
           <div class="question">
             今日は何年の何月何日ですか？ 何曜日ですか？
           </div>
@@ -704,12 +697,19 @@
               <img src="{{ asset('storage/pen.png') }}" alt="ペン" />
               <img src="{{ asset('storage/coin.png') }}" alt="硬貨" />
             </div>
+            <!-- カウントダウンメッセージ（最初から表示する） -->
+            <div id="q8CountdownMessage" class="advice alert alert-info">
+              画像は5秒後に自動的に隠れます。残り <span id="q8Countdown">5</span> 秒
+            </div>
+
             <div class="advice alert alert-secondary">
               見せた後、一定時間(例: 5秒)が過ぎたら隠して回答を求めます。
             </div>
+
             <button
               class="btn btn-primary btn-block"
-              onclick="showQuestion8Step2()">
+              id="q8ManualHideBtn"
+              onclick="showQuestion8Step2(true)">
               隠して回答へ
             </button>
           </div>
@@ -863,6 +863,47 @@
       });
     });
 
+    // ------------------------------
+    // 西暦年プルダウンを初期化
+    // ------------------------------
+    function populateYears(startYear = 1900) {
+      const yearSelect = document.getElementById('birthYear');
+      yearSelect.innerHTML = '';
+      const current = new Date().getFullYear();
+      for (let y = current; y >= startYear; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y + '年';
+        yearSelect.appendChild(opt);
+      }
+    }
+
+    // ページロードで西暦を生成
+    document.addEventListener('DOMContentLoaded', function() {
+      populateYears(1900);
+    });
+
+    // 生年月日不明フラグ
+    let birthUnknown = false;
+
+    // ------------------------------
+    // 生年月日が不明瞭ボタンの処理
+    // ------------------------------
+    function markBirthUnknown() {
+      birthUnknown = true;
+      // フラッシュメッセージを表示
+      const flash = document.getElementById('birthUnknownFlash');
+      if (flash) {
+        flash.innerHTML = '<strong>注意：</strong>生年月日が不明瞭なため、設問1は自動的に「0点」として扱います。保険証等で確認できる場合は必ず確認してください。<br><small>いきさつ: ご家族や保険証で年齢が確認できない場合、正確な年齢を問うことが困難なため、検査の公平性を保つためにこのオプションを設けています。</small>';
+        flash.style.display = 'block';
+      }
+
+      // 検査開始ボタンを有効化して、年齢表示をダミーにセット（0扱い）
+      correctAge = null;
+      document.getElementById('calculatedAgeArea').style.display = 'none';
+      document.getElementById('startQuizBtn').disabled = false;
+    }
+
     // ==============================
     // スコア管理用変数
     // ==============================
@@ -872,37 +913,36 @@
     // ==============================
     // 生年月日→年齢を計算
     // ==============================
+
     function calculateAge() {
-      // 元号・和暦年取得
-      const era = document.getElementById('birthEra').value;
+      // 生年月日不明フラグが立っている場合はここで処理せずに早期return
+      if (birthUnknown) {
+        // 明示的に計算をスキップ
+        correctAge = null;
+        document.getElementById('calculatedAgeArea').style.display = 'none';
+        document.getElementById('startQuizBtn').disabled = false;
+        return;
+      }
+
+      // 西暦年取得（select の値は西暦）
       const y = parseInt(document.getElementById('birthYear').value, 10);
       const m = parseInt(document.getElementById('birthMonth').value, 10);
       const d = parseInt(document.getElementById('birthDay').value, 10);
 
-      // 和暦→西暦変換
-      let year = 0;
-      if (era === 'showa') {
-        year = 1925 + y; // 昭和1年=1926年
-      } else if (era === 'heisei') {
-        year = 1988 + y; // 平成1年=1989年
-      } else if (era === 'reiwa') {
-        year = 2018 + y; // 令和1年=2019年
-      }
-
       // 数値チェック
-      if (isNaN(year) || isNaN(m) || isNaN(d)) {
+      if (isNaN(y) || isNaN(m) || isNaN(d)) {
         alert('生年月日を正しく入力してください。');
         return;
       }
 
       // 範囲チェック
-      if (year < 1900 || year > 2100 || m < 1 || m > 12 || d < 1 || d > 31) {
+      if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) {
         alert('生年月日の範囲が不正です。');
         return;
       }
 
       // 実在日付チェック
-      const birthDate = new Date(year, m - 1, d);
+      const birthDate = new Date(y, m - 1, d);
       if (isNaN(birthDate.getTime())) {
         alert('実在しない日付のようです。正しく入力してください。');
         return;
@@ -938,12 +978,25 @@
       // イントロ画面を隠す
       document.getElementById('introSection').style.display = 'none';
 
-      // 設問1を開く
-      $('#modalQuestion1').modal('show');
+      // 生年月日不明フラグが立っている場合: 設問1をスキップして問1が0点となる旨を通知
+      if (birthUnknown) {
+        // スコアに問1の0点を明示（実際の得点変化は0だが、フロー上で扱う）
+        score += 0;
+        // q1SkipNotice に説明を表示
+        const notice = document.getElementById('q1SkipNotice');
+        if (notice) {
+          notice.innerHTML = '<div class="alert alert-warning"><strong>注意：</strong>生年月日が不明瞭なため、設問1は自動的に「0点」として扱いました。保険証等で確認できる場合は必ず確認してください。</div>';
+        }
+        // 直接設問2を開く
+        $('#modalQuestion2').modal('show');
+      } else {
+        // 設問1を開く
+        $('#modalQuestion1').modal('show');
 
-      // 設問1モーダルの文言に"計算した年齢"を表示
-      if (correctAge !== null) {
-        document.getElementById('calculatedAgeDisplay').textContent = String(correctAge);
+        // 設問1モーダルの文言に"計算した年齢"を表示
+        if (correctAge !== null) {
+          document.getElementById('calculatedAgeDisplay').textContent = String(correctAge);
+        }
       }
     }
 
@@ -975,10 +1028,54 @@
     // ==============================
     // submitQuestion8: 設問8の処理
     // ==============================
-    function showQuestion8Step2() {
+    // カウントダウンタイマー（設問8）
+    let q8Timer = null;
+    let q8Remaining = 5;
+
+    function startQ8Countdown(seconds = 5) {
+      // 既にタイマーが動作中ならクリア
+      stopQ8Countdown();
+      q8Remaining = seconds;
+      const span = document.getElementById('q8Countdown');
+      if (span) span.textContent = String(q8Remaining);
+
+      q8Timer = setInterval(() => {
+        q8Remaining -= 1;
+        if (span) span.textContent = String(q8Remaining);
+        if (q8Remaining <= 0) {
+          // タイマー停止
+          stopQ8Countdown();
+          // 自動で画像を隠して回答へ遷移
+          showQuestion8Step2(false);
+        }
+      }, 1000);
+    }
+
+    function stopQ8Countdown() {
+      if (q8Timer !== null) {
+        clearInterval(q8Timer);
+        q8Timer = null;
+      }
+      const span = document.getElementById('q8Countdown');
+      if (span) span.textContent = '0';
+    }
+    /**
+     * showQuestion8Step2(manual = true)
+     * manual が true の場合はユーザーが手動でボタンを押した扱いとし、
+     * タイマーを停止する。false の場合は自動でタイマーから呼ばれた。
+     */
+    function showQuestion8Step2(manual = true) {
+      // タイマーが動いていれば停止
+      stopQ8Countdown();
+
       // 画像を隠し、回答画面を表示
-      document.getElementById('question8Step1').style.display = 'none';
-      document.getElementById('question8Step2').style.display = 'block';
+      const step1 = document.getElementById('question8Step1');
+      const step2 = document.getElementById('question8Step2');
+      if (step1) step1.style.display = 'none';
+      if (step2) step2.style.display = 'block';
+      // 予防的にカウントダウンメッセージを非表示
+      const msg = document.getElementById('q8CountdownMessage');
+      if (msg) msg.style.display = 'none';
     }
 
     function submitQuestion8() {
@@ -1015,6 +1112,63 @@
       $('#modalQuestion' + questionNumber).modal('hide');
       $('#modalQuestion' + (questionNumber - 1)).modal('show');
     }
+
+    // モーダル表示/非表示で設問8のカウントダウンを管理
+    $(document).ready(function() {
+      $('#modalQuestion8').on('shown.bs.modal', function() {
+        // ステップ1を初期状態にしてメッセージを表示
+        const step1 = document.getElementById('question8Step1');
+        const step2 = document.getElementById('question8Step2');
+        if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+        const msg = document.getElementById('q8CountdownMessage');
+        if (msg) msg.style.display = 'block';
+        startQ8Countdown(5);
+      });
+
+      $('#modalQuestion8').on('hidden.bs.modal', function() {
+        // モーダル閉鎖時は必ずタイマーを停止して表示をリセット
+        stopQ8Countdown();
+        const step1 = document.getElementById('question8Step1');
+        const step2 = document.getElementById('question8Step2');
+        if (step1) step1.style.display = 'block';
+        if (step2) step2.style.display = 'none';
+        const msg = document.getElementById('q8CountdownMessage');
+        if (msg) msg.style.display = 'block';
+      });
+
+      // 設問2モーダルが表示されたら、検査者用に正しい日付を表示する
+      $('#modalQuestion2').on('shown.bs.modal', function() {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = now.getMonth() + 1;
+        const dd = now.getDate();
+        const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+        const wd = weekdays[now.getDay()];
+        const display = `<div class="alert alert-light"><strong>正答:</strong> ${yyyy}年 ${mm}月 ${dd}日 （${wd}）</div>`;
+        const el = document.getElementById('q2CorrectDate');
+        if (el) el.innerHTML = display;
+
+        // (任意) 検査者の手間を減らすため、正解の option を選択状態にしておく
+        try {
+          document.getElementById('yearSelect').value = '1';
+          document.getElementById('monthSelect').value = '1';
+          document.getElementById('daySelect').value = '1';
+          const weekdayMap = {
+            0: '日',
+            1: '月',
+            2: '火',
+            3: '水',
+            4: '木',
+            5: '金',
+            6: '土'
+          };
+          document.getElementById('weekdaySelect').value = '1';
+        } catch (e) {
+          // noop
+        }
+      });
+    });
 
     // ==============================
     // showResult: 最終結果
