@@ -690,12 +690,20 @@
               (例: 時計、鍵、タバコ、ペン、硬貨)
             </div>
             <div class="item-images">
-              <!-- 実際の画像パスに差し替えてください -->
-              <img src="{{ asset('storage/watch.png') }}" alt="時計" />
-              <img src="{{ asset('storage/key.png') }}" alt="鍵" />
-              <img src="{{ asset('storage/cigarette.png') }}" alt="タバコ" />
-              <img src="{{ asset('storage/pen.png') }}" alt="ペン" />
-              <img src="{{ asset('storage/coin.png') }}" alt="硬貨" />
+              <!--
+                ここはページロード時に JavaScript で画像を差し込みます。
+                画像ファイルは `storage/app/public/` に置き、公開には
+                `php artisan storage:link` を実行して `/storage/` 経由で参照してください。
+
+                デフォルトのファイル名（例）:
+                  - storage/watch.png
+                  - storage/key.png
+                  - storage/cigarette.png
+                  - storage/pen.png
+                  - storage/coin.png
+
+                画像を追加／差し替えしたらリロードすると表示されます。
+              -->
             </div>
             <!-- カウントダウンメッセージ（最初から表示する） -->
             <div id="q8CountdownMessage" class="advice alert alert-info">
@@ -842,6 +850,10 @@
           <h4 id="scoreDisplay" class="text-center"></h4>
           <p id="resultText" class="text-center font-weight-bold"></p>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
+          <button type="button" class="btn btn-primary" onclick="resetQuiz()">もう一度検査</button>
+        </div>
       </div>
     </div>
   </div>
@@ -881,6 +893,12 @@
     // ページロードで西暦を生成
     document.addEventListener('DOMContentLoaded', function() {
       populateYears(1900);
+      // Q8の画像を動的に配置
+      try {
+        populateQ8Images();
+      } catch (e) {
+        // noop
+      }
     });
 
     // 生年月日不明フラグ
@@ -975,13 +993,13 @@
     // 検査開始
     // ==============================
     function startQuiz() {
+      // スコア等を初期化してイントロ画面を隠す
+      score = 0;
       // イントロ画面を隠す
       document.getElementById('introSection').style.display = 'none';
 
       // 生年月日不明フラグが立っている場合: 設問1をスキップして問1が0点となる旨を通知
       if (birthUnknown) {
-        // スコアに問1の0点を明示（実際の得点変化は0だが、フロー上で扱う）
-        score += 0;
         // q1SkipNotice に説明を表示
         const notice = document.getElementById('q1SkipNotice');
         if (notice) {
@@ -1051,6 +1069,36 @@
       }, 1000);
     }
 
+    // ==============================
+    // 設問8の画像を動的に読み込んで表示する
+    // 使い方: storage/app/public に画像を置き、/storage/<filename> で参照します。
+    // 配列 `q8ImageNames` に表示したいファイル名(5つ推奨)を入れてください。
+    // ==============================
+    const q8ImageNames = ['watch.png', 'key.png', 'cigarette.png', 'pen.png', 'coin.png'];
+
+    function populateQ8Images() {
+      const container = document.querySelector('.item-images');
+      if (!container) return;
+      container.innerHTML = '';
+
+      q8ImageNames.forEach(name => {
+        const img = document.createElement('img');
+        img.src = '/storage/' + name;
+        img.alt = name.replace(/\.[^/.]+$/, '');
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.onerror = function() {
+          // 画像がない場合はプレースホルダーを表示
+          const fallback = document.createElement('div');
+          fallback.className = 'q8-placeholder';
+          fallback.textContent = img.alt;
+          fallback.style.cssText = 'display:flex;align-items:center;justify-content:center;background:#f7f7f7;border:1px dashed #ddd;color:#666;padding:12px;height:110px;';
+          if (img.parentNode) img.parentNode.replaceChild(fallback, img);
+        };
+        container.appendChild(img);
+      });
+    }
+
     function stopQ8Countdown() {
       if (q8Timer !== null) {
         clearInterval(q8Timer);
@@ -1109,6 +1157,18 @@
     // 戻るボタン
     // ==============================
     function prevModal(questionNumber) {
+      // 特殊ケース: 設問2の戻る（questionNumber===1）が呼ばれた際に
+      // 生年月日不明フラグが立っている場合は設問1は存在しないため
+      // イントロに戻す振る舞いにする
+      if (questionNumber === 1 && birthUnknown) {
+        $('#modalQuestion2').modal('hide');
+        document.getElementById('introSection').style.display = 'block';
+        // 保留表示などをクリア
+        const notice = document.getElementById('q1SkipNotice');
+        if (notice) notice.innerHTML = '';
+        return;
+      }
+
       $('#modalQuestion' + questionNumber).modal('hide');
       $('#modalQuestion' + (questionNumber - 1)).modal('show');
     }
@@ -1167,6 +1227,13 @@
         } catch (e) {
           // noop
         }
+        // 生年月日不明で設問1がスキップされた場合、戻るボタンはイントロへ戻す仕様にするため無効化
+        try {
+          const prevBtn = document.querySelector('#modalQuestion2 .btn-prev');
+          if (prevBtn) prevBtn.disabled = birthUnknown;
+        } catch (e) {
+          // noop
+        }
       });
     });
 
@@ -1191,6 +1258,51 @@
       document.getElementById('resultText').innerText = `結果: ${resultText}`;
 
       $('#modalResult').modal('show');
+    }
+
+    // ==============================
+    // resetQuiz: 検査を最初からやり直す
+    // ==============================
+    function resetQuiz() {
+      // すべてのモーダルを閉じる
+      $('.modal').modal('hide');
+      stopQ8Countdown();
+
+      // 状態リセット
+      score = 0;
+      correctAge = null;
+      birthUnknown = false;
+
+      // UI を初期状態に戻す
+      document.getElementById('introSection').style.display = 'block';
+      const flash = document.getElementById('birthUnknownFlash');
+      if (flash) {
+        flash.style.display = 'none';
+        flash.innerHTML = '';
+      }
+      const startBtn = document.getElementById('startQuizBtn');
+      if (startBtn) startBtn.disabled = true;
+
+      const calcArea = document.getElementById('calculatedAgeArea');
+      if (calcArea) calcArea.style.display = 'none';
+
+      const q1Notice = document.getElementById('q1SkipNotice');
+      if (q1Notice) q1Notice.innerHTML = '';
+
+      // 設問8の表示を初期化
+      const step1 = document.getElementById('question8Step1');
+      const step2 = document.getElementById('question8Step2');
+      if (step1) step1.style.display = 'block';
+      if (step2) step2.style.display = 'none';
+      const q8msg = document.getElementById('q8CountdownMessage');
+      if (q8msg) q8msg.style.display = 'block';
+
+      // リセット後、年のプルダウンは残すが選択を最新に
+      try {
+        populateYears(1900);
+      } catch (e) {
+        // noop
+      }
     }
   </script>
 </body>
