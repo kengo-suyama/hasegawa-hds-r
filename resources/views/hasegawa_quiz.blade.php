@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>心桜 認知症診断(改良版)</title>
+  <title>心桜 認知症チェック(改良版)</title>
   <!-- Bootstrap & Font Awesome -->
   <link
     rel="stylesheet"
@@ -11,88 +11,278 @@
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-  <!-- CSS for 桜エフェクト(読み込む場合は適宜設定) -->
-  <link rel="stylesheet" href="{{ asset('css/jquery-sakura.min.css') }}" />
-
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Satisfy&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+
+    :root {
+      --ink: #2d2a2b;
+      --ink-muted: #6a5f64;
+      --bg: #f3d6e2;
+      --bg-soft: #f7e2ea;
+      --panel: #fff7fa;
+      --panel-accent: #f5d7e1;
+      --border: #e8b6c7;
+      --primary: #b24f6e;
+      --primary-strong: #8f3b54;
+      --accent: #c86b86;
+      --accent-soft: #f2cbd8;
+      --danger: #b04a4a;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
 
     body {
-      background-color: #ffd1dc;
-      font-size: 1.2rem;
+      font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-size: 1.25rem;
+      line-height: 1.7;
       overflow-x: hidden;
-      /* 横スクロールを抑制 */
+      overflow-y: auto;
+      position: relative;
+    }
+
+    :root.theme-dark {
+      --ink: #f4e9ee;
+      --ink-muted: #d0b7c3;
+      --bg: #2b1c22;
+      --bg-soft: #3b2630;
+      --panel: #3a252d;
+      --panel-accent: #4a2f3a;
+      --border: #5c3a47;
+      --primary: #d07a92;
+      --primary-strong: #b5647f;
+      --accent: #d98aa1;
+      --accent-soft: #4a2f3a;
+      --danger: #d06b6b;
+    }
+
+    :root.theme-light {
+      --ink: #2d2a2b;
+      --ink-muted: #6a5f64;
+      --bg: #f3d6e2;
+      --bg-soft: #f7e2ea;
+      --panel: #fff7fa;
+      --panel-accent: #f5d7e1;
+      --border: #e8b6c7;
+      --primary: #b24f6e;
+      --primary-strong: #8f3b54;
+      --accent: #c86b86;
+      --accent-soft: #f2cbd8;
+      --danger: #b04a4a;
     }
 
     .title-section h2 {
-      font-family: 'Satisfy', cursive;
-      color: #d63384;
+      font-weight: 700;
+      color: var(--primary-strong);
       text-align: center;
       margin-top: 2rem;
-      margin-bottom: 1rem;
-      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      font-size: 2.6rem;
+      letter-spacing: 0.05em;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 2100;
+    }
+
+    .theme-toggle .btn {
+      font-size: 0.95rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 10px;
     }
 
     .instructions {
       margin: 0 auto;
-      max-width: 600px;
+      max-width: 720px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 12px 28px rgba(20, 30, 40, 0.12);
+    }
+
+    .instructions h5 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-top: 1rem;
     }
 
     .btn-start {
       display: block;
-      margin: 1rem auto;
-      font-size: 1.5rem;
-      font-weight: bold;
-      padding: 0.7rem 1.5rem;
+      margin: 1.2rem auto 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      padding: 0.8rem 1.6rem;
+      border-radius: 14px;
     }
 
-    /* モーダルのデザイン */
-    .modal-content {
+    .form-inline {
+      flex-wrap: wrap;
+      gap: 0.5rem 0.75rem;
+      align-items: center;
+    }
+
+    .form-control {
+      font-size: 1.1rem;
+      padding: 0.6rem 0.9rem;
       border-radius: 10px;
+      border: 1px solid var(--border);
+      line-height: 1.4;
+      height: 52px;
+    }
+
+    select.form-control {
+      padding-top: 0.3rem;
+      padding-bottom: 0.3rem;
+      line-height: 1.2;
+      vertical-align: middle;
+    }
+
+    .modal-dialog {
+      max-width: 760px;
+    }
+
+    .modal-dialog.modal-lg {
+      max-width: 920px;
+    }
+
+    .modal {
+      padding: 0 !important;
+    }
+
+    .modal-dialog,
+    .modal-dialog.modal-lg {
+      max-width: 100%;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    .modal-dialog-centered {
+      min-height: 100%;
+      display: block;
+    }
+
+    .modal-content {
+      height: 100%;
+      border-radius: 0;
+      border: 1px solid var(--border);
+      box-shadow: 0 14px 30px rgba(20, 30, 40, 0.18);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-backdrop {
+      background-color: var(--bg);
+    }
+
+    .modal-backdrop.show {
+      opacity: 0.7;
     }
 
     .modal-header {
-      background-color: #ffe1e9;
+      background-color: rgba(245, 215, 225, 0.92);
       border-bottom: none;
-      border-radius: 10px 10px 0 0;
+    }
+
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 700;
     }
 
     .modal-body {
-      background-color: #ffffff;
+      background-color: rgba(255, 247, 250, 0.94);
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1 1 auto;
     }
 
     .modal-footer {
-      background-color: #ffe1e9;
+      background-color: rgba(245, 215, 225, 0.92);
       border-top: none;
-      border-radius: 0 0 10px 10px;
+      flex: 0 0 auto;
     }
 
     .question {
-      font-weight: bold;
-      margin-bottom: 1.5rem;
+      font-weight: 700;
+      font-size: 1.55rem;
+      margin-bottom: 1.2rem;
+      background: var(--bg-soft);
+      border-left: 8px solid var(--accent);
+      padding: 0.9rem 1.1rem;
+      border-radius: 12px;
+    }
+
+    .question p {
+      margin-bottom: 0;
     }
 
     .advice {
-      font-size: 0.9rem;
+      font-size: 1.05rem;
       margin-top: 1rem;
     }
 
-    .btn-next,
-    .btn-prev {
+    .btn-next {
       margin-top: 1rem;
+    }
+
+    .btn {
+      font-size: 1.15rem;
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background-color: var(--primary-strong);
+      border-color: var(--primary-strong);
+    }
+
+    .btn-outline-primary {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-outline-primary:hover,
+    .btn-outline-primary:focus {
+      background-color: var(--primary);
+      color: #fff;
+    }
+
+    .btn-outline-danger {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .btn-outline-danger:hover,
+    .btn-outline-danger:focus {
+      background-color: var(--danger);
+      color: #fff;
     }
 
     /* ワンポイントアドバイス用 */
     .extra-info {
-      background-color: #fffbee;
-      border: 1px solid #ffe9c4;
-      border-radius: 5px;
-      padding: 10px;
+      background-color: var(--panel-accent);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
       margin-top: 15px;
     }
 
     .extra-info h6 {
-      font-weight: bold;
+      font-weight: 700;
       margin-bottom: 5px;
     }
 
@@ -100,21 +290,568 @@
       margin-bottom: 0.5rem;
     }
 
+    .q3-hint {
+      background: var(--accent-soft);
+      border-radius: 12px;
+      padding: 0.7rem 1rem;
+      font-weight: 700;
+      color: var(--primary-strong);
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .q3-countdown {
+      background: var(--accent-soft);
+      border-radius: 12px;
+      padding: 0.7rem 1rem;
+      font-weight: 700;
+      color: var(--primary-strong);
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .word-set-panel {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      text-align: center;
+    }
+
+    .word-set-label {
+      font-size: 1.05rem;
+      color: var(--ink-muted);
+    }
+
+    .word-set-words {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-top: 0.4rem;
+    }
+
+    .word-set-options {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .word-set-option {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.15rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+    }
+
+    .word-set-option input {
+      transform: scale(1.2);
+    }
+
+    .recall-panel {
+      background: var(--panel-accent);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .recall-title {
+      font-size: 1.05rem;
+      color: var(--ink-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .recall-words {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .recall-hint {
+      margin-top: 0.4rem;
+      font-size: 1.05rem;
+      color: var(--ink-muted);
+    }
+
+    .q7-score-grid {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .q7-score-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+    }
+
+    .q7-score-word {
+      flex: 1 1 220px;
+    }
+
+    .q7-word-label {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .q7-word-hint {
+      font-size: 1rem;
+      color: var(--ink-muted);
+    }
+
+    .q7-score-select {
+      min-width: 220px;
+    }
+
+    .q8-current {
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem;
+      text-align: center;
+      background: var(--bg-soft);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .q8-current-name {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .q8-current-image {
+      max-width: 100%;
+      max-height: 360px;
+      border-radius: 12px;
+      border: 3px solid #fff;
+      background: #fff;
+      box-shadow: 0 10px 18px rgba(20, 30, 40, 0.16);
+      display: block;
+      margin: 0 auto;
+    }
+
+    .q8-progress {
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+      color: var(--ink-muted);
+    }
+
+    .q8-image-actions {
+      width: min(360px, 100%);
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+    }
+
+    .q8-controls {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .q8-retry-note {
+      font-size: 0.95rem;
+      color: var(--ink-muted);
+      text-align: center;
+    }
+
+    .q8-review {
+      margin-top: 1rem;
+      background: #fff;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 0.8rem 0.9rem;
+    }
+
+    .q8-review-title {
+      font-size: 1.05rem;
+      color: var(--ink-muted);
+    }
+
+    .q8-shown-list {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      margin-top: 0.6rem;
+    }
+
+    .q8-shown-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .q8-shown-card img {
+      width: 100%;
+      height: 90px;
+      object-fit: contain;
+    }
+
+    .q8-shown-name {
+      margin-top: 0.4rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .q8-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f7f7f7;
+      border: 2px dashed #d4c9b7;
+      color: #6b6b6b;
+      border-radius: 8px;
+      min-height: 90px;
+      padding: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    .helper-note {
+      font-size: 0.95rem;
+      color: var(--ink-muted);
+    }
+
+    .q8-retry-help {
+      text-align: center;
+      margin-top: 0.3rem;
+    }
+
+    .age-note {
+      margin-top: 0.2rem;
+    }
+
+    .vegetable-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.6rem;
+    }
+
+    .vegetable-input {
+      font-size: 1.05rem;
+    }
+
+    .network-status {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.6rem 1rem;
+      background: #b24f6e;
+      color: #fff;
+      text-align: center;
+      font-weight: 700;
+      z-index: 2200;
+      display: none;
+    }
+
+    .back-notice {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(178, 79, 110, 0.95);
+      color: #fff;
+      padding: 0.9rem 1.2rem;
+      border-radius: 14px;
+      box-shadow: 0 8px 18px rgba(20, 30, 40, 0.2);
+      display: none;
+      z-index: 2200;
+      text-align: center;
+      max-width: min(90vw, 520px);
+    }
+
+    .back-notice .btn {
+      margin-top: 0.6rem;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: rgba(248, 221, 231, 0.88);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease;
+      z-index: 2300;
+    }
+
+    .loading-overlay.is-visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(178, 79, 110, 0.35);
+      border-top-color: var(--primary-strong);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .loading-text {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    #petalLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .title-section,
+    #introSection {
+      position: relative;
+      z-index: 1;
+    }
+
+    .petal {
+      position: absolute;
+      top: -12vh;
+      animation: petal-fall var(--fall-duration) linear infinite;
+      will-change: transform;
+    }
+
+    .petal-sway {
+      display: block;
+      width: var(--petal-size);
+      height: calc(var(--petal-size) * 1.2);
+      background: radial-gradient(circle at 30% 30%, var(--petal-highlight) 0%, var(--petal-color) 55%, var(--petal-shadow) 100%);
+      clip-path: polygon(50% 18%, 63% 5%, 80% 6%, 94% 22%, 94% 40%, 80% 60%, 50% 100%, 20% 60%, 6% 40%, 6% 22%, 20% 6%, 37% 5%);
+      opacity: var(--petal-opacity);
+      animation: petal-sway var(--sway-duration) ease-in-out infinite;
+      will-change: transform;
+    }
+
+    @keyframes petal-fall {
+      to {
+        transform: translate3d(var(--fall-x), 110vh, 0);
+      }
+    }
+
+    @keyframes petal-sway {
+      0% {
+        transform: translateX(0) rotate(0deg);
+      }
+      50% {
+        transform: translateX(var(--sway-x)) rotate(var(--sway-rotate));
+      }
+      100% {
+        transform: translateX(0) rotate(var(--sway-rotate-end));
+      }
+    }
+
+    #q8FullscreenTarget:fullscreen {
+      background: #fff7fa;
+      padding: 2rem;
+    }
+
+    #q8FullscreenTarget:fullscreen .q8-current-name {
+      font-size: 2.2rem;
+    }
+
+    #q8FullscreenTarget:fullscreen .q8-current-image {
+      max-height: 80vh;
+    }
+
+    #q8FullscreenTarget:-webkit-full-screen {
+      background: #fff7fa;
+      padding: 2rem;
+    }
+
+    #q8FullscreenTarget:-webkit-full-screen .q8-current-name {
+      font-size: 2.2rem;
+    }
+
+    #q8FullscreenTarget:-webkit-full-screen .q8-current-image {
+      max-height: 80vh;
+    }
+
+    body.q8-fallback-active {
+      overflow: hidden;
+    }
+
+    #q8FullscreenTarget.q8-fullscreen-fallback {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: #fff7fa;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #q8FullscreenTarget.q8-fullscreen-fallback .q8-current-name {
+      font-size: 2.2rem;
+    }
+
+    #q8FullscreenTarget.q8-fullscreen-fallback .q8-current-image {
+      max-height: 80vh;
+    }
+
+    .theme-dark .instructions {
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .theme-dark .modal-content {
+      border-color: var(--border);
+    }
+
+    .theme-dark .modal-body {
+      background-color: rgba(58, 37, 45, 0.96);
+    }
+
+    .theme-dark .modal-header,
+    .theme-dark .modal-footer {
+      background-color: rgba(63, 42, 51, 0.92);
+    }
+
+    .theme-dark .extra-info,
+    .theme-dark .recall-panel,
+    .theme-dark .q8-current,
+    .theme-dark .word-set-panel {
+      background: #3b2831;
+    }
+
+    .theme-dark .q8-current-image {
+      border-color: #3a252d;
+      background: #2f2027;
+    }
+
+    .theme-dark .q8-placeholder {
+      background: #2f2a2c;
+      color: #e5d7dd;
+      border-color: #5c3a47;
+    }
+
+    .theme-dark .loading-overlay {
+      background: rgba(30, 20, 25, 0.9);
+    }
+
+    .theme-dark .back-notice {
+      background: rgba(61, 42, 50, 0.95);
+      color: #f7edf1;
+    }
+
+    .theme-dark .q3-hint,
+    .theme-dark .q3-countdown {
+      background: #4a2f3a;
+      color: var(--ink);
+    }
+
+    .theme-dark .word-set-option,
+    .theme-dark .q7-score-row,
+    .theme-dark .q8-review,
+    .theme-dark .q8-shown-card {
+      background: #3a252d;
+      border-color: var(--border);
+      color: var(--ink);
+    }
+
+    .theme-dark .word-set-label,
+    .theme-dark .recall-title,
+    .theme-dark .recall-hint,
+    .theme-dark .q7-word-hint,
+    .theme-dark .q8-review-title,
+    .theme-dark .q8-progress,
+    .theme-dark .q8-retry-note,
+    .theme-dark .helper-note {
+      color: var(--ink-muted);
+    }
+
+    .theme-dark .recall-words,
+    .theme-dark .q7-word-label,
+    .theme-dark .q8-shown-name {
+      color: var(--ink);
+    }
+
     @media (max-width: 768px) {
+      body {
+        font-size: 1.35rem;
+      }
+
       .title-section h2 {
         font-size: 2rem;
       }
 
+      .instructions {
+        padding: 1.2rem;
+      }
+
       .btn-start {
         font-size: 1.2rem;
+      }
+
+      .question {
+        font-size: 1.5rem;
+        margin-bottom: 0.9rem;
+      }
+
+      .q8-current-image {
+        max-height: 260px;
+      }
+
+      .modal-header,
+      .modal-footer {
+        padding: 0.8rem 1rem;
+      }
+
+      .modal-body {
+        padding: 1.1rem;
       }
     }
   </style>
 </head>
 
 <body>
+  <div id="networkStatus" class="network-status" role="alert" aria-live="polite">
+    オフラインです。通信環境をご確認ください。
+  </div>
+  <div id="backNotice" class="back-notice" role="status" aria-live="polite">
+    ブラウザの戻る操作で設問が閉じました。続きに戻る場合は下のボタンを押してください。
+    <div>
+      <button type="button" class="btn btn-light btn-sm" data-action="resume-modal">設問に戻る</button>
+    </div>
+  </div>
+  <div id="globalLoading" class="loading-overlay" aria-live="polite" aria-busy="true">
+    <div class="loading-spinner" aria-hidden="true"></div>
+    <div class="loading-text">読み込み中...</div>
+  </div>
+  <div class="theme-toggle">
+    <button type="button" class="btn btn-outline-primary" id="themeToggleBtn">ダークモード</button>
+  </div>
+  <div id="petalLayer" aria-hidden="true"></div>
   <div class="title-section">
-    <h2>心桜 認知症診断</h2>
+    <h2>心桜 認知症チェック</h2>
   </div>
 
   <!-- ================================
@@ -136,25 +873,26 @@
     <!-- 生年月日入力フォーム (プルダウン: 西暦年 + 月 + 日) -->
     <div class="form-inline mb-3">
       <label for="birthYear" class="mr-2">西暦:</label>
-      <select class="form-control mr-2" id="birthYear" style="width: 140px;"></select>
+      <select class="form-control mr-2" id="birthYear" name="birthYear" data-old="{{ old('birthYear') }}" style="width: 140px;"></select>
 
       <label for="birthMonth" class="mr-2">月:</label>
-      <select class="form-control mr-2" id="birthMonth" style="width: 90px;">
+      <select class="form-control mr-2" id="birthMonth" name="birthMonth" style="width: 90px;">
         @for ($i = 1; $i <= 12; $i++)
-          <option value="{{ $i }}">{{ $i }}月</option>
+          <option value="{{ $i }}" {{ old('birthMonth') == $i ? 'selected' : '' }}>{{ $i }}月</option>
           @endfor
       </select>
 
       <label for="birthDay" class="mr-2">日:</label>
-      <select class="form-control" id="birthDay" style="width: 90px;">
+      <select class="form-control" id="birthDay" name="birthDay" style="width: 90px;">
         @for ($d = 1; $d <= 31; $d++)
-          <option value="{{ $d }}">{{ $d }}日</option>
+          <option value="{{ $d }}" {{ old('birthDay') == $d ? 'selected' : '' }}>{{ $d }}日</option>
           @endfor
       </select>
     </div>
+    <div class="helper-note mt-2">※本検査は原則18歳（成人）以上を対象としています。18歳未満の場合は実施可否をご判断ください。</div>
     <div class="d-flex mb-2" style="gap:8px;">
-      <button class="btn btn-primary" onclick="calculateAge()">年齢を計算</button>
-      <button class="btn btn-warning" id="birthUnknownBtn" onclick="markBirthUnknown()">生年月日が不明瞭な場合はこちら</button>
+      <button class="btn btn-primary" data-action="calculate-age">年齢を計算</button>
+      <button class="btn btn-warning" id="birthUnknownBtn" data-action="mark-birth-unknown">生年月日が不明瞭な場合はこちら</button>
     </div>
 
     <!-- 生年月日不明時のフラッシュメッセージ -->
@@ -162,14 +900,12 @@
 
     <div class="mt-3" id="calculatedAgeArea" style="display: none;">
       <p>推定年齢: <span id="calculatedAgeSpan" style="font-weight:bold;"></span> 歳</p>
-      <p style="font-size:0.9rem;color:#555;">
-        ※保険証などで確認した年齢と一致するかご確認ください
-      </p>
+      <p class="helper-note age-note">※保険証などで確認した年齢と一致するかご確認ください</p>
     </div>
 
     <button
       class="btn btn-success btn-start"
-      onclick="startQuiz()"
+      data-action="start-quiz"
       disabled
       id="startQuizBtn">
       検査を開始する
@@ -177,7 +913,7 @@
   </div>
 
   <!-- ========== Modal 1 (設問1: 2択) ========== -->
-  <div class="modal fade" id="modalQuestion1" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalQuestion1" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -192,7 +928,7 @@
         </div>
         <div class="modal-body">
           <!-- 計算した年齢をここに表示 -->
-          <div class="question">
+          <div class="question" id="q1Question">
             <p>
               先ほど計算した年齢は
               <span id="calculatedAgeDisplay" style="font-weight:bold;"></span>
@@ -201,15 +937,16 @@
               それ以外なら「不正解」ボタンを押してください。
             </p>
           </div>
+          <div class="helper-note mb-3">※設問1の年齢確認は原則18歳（成人）以上を対象にしてください。</div>
           <!-- 2ボタンのみ -->
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(1, 2)">
+            data-action="answer" data-score="1" data-next="2">
             正解（±2年以内）
           </button>
           <button
             class="btn btn-outline-danger btn-block mb-2"
-            onclick="handleAnswer(0, 2)">
+            data-action="answer" data-score="0" data-next="2">
             不正解（±2年外）
           </button>
           <div class="advice alert alert-secondary mt-3">
@@ -229,19 +966,13 @@
             </p>
           </div>
         </div>
-        <div class="modal-footer">
-          <!-- 設問1は"戻る"ボタン不要なので disabled -->
-          <button type="button" class="btn btn-secondary btn-prev" disabled>
-            戻る
-          </button>
-        </div>
       </div>
     </div>
   </div>
 
   <!-- ========== Modal 2 (設問2) ========== -->
   <div
-    class="modal fade"
+    class="modal fade" data-backdrop="static" data-keyboard="false"
     id="modalQuestion2"
     tabindex="-1"
     aria-labelledby="modalQuestion2Label"
@@ -263,37 +994,37 @@
           <div id="q1SkipNotice"></div>
           <!-- 設問2の正答日表示（検査者用） -->
           <div id="q2CorrectDate" style="margin-bottom:8px;"></div>
-          <div class="question">
+          <div class="question" id="q2Question">
             今日は何年の何月何日ですか？ 何曜日ですか？
           </div>
           <!-- 年・月・日・曜日の正誤選択 -->
           <div class="form-row">
             <div class="form-group col-md-3">
               <label for="yearSelect">年</label>
-              <select class="form-control" id="yearSelect">
-                <option value="0">不正解</option>
-                <option value="1">正解</option>
+              <select class="form-control" id="yearSelect" name="yearSelect" data-old="{{ old('yearSelect') }}">
+                <option value="0" {{ old('yearSelect', '0') == '0' ? 'selected' : '' }}>不正解</option>
+                <option value="1" {{ old('yearSelect') == '1' ? 'selected' : '' }}>正解</option>
               </select>
             </div>
             <div class="form-group col-md-3">
               <label for="monthSelect">月</label>
-              <select class="form-control" id="monthSelect">
-                <option value="0">不正解</option>
-                <option value="1">正解</option>
+              <select class="form-control" id="monthSelect" name="monthSelect" data-old="{{ old('monthSelect') }}">
+                <option value="0" {{ old('monthSelect', '0') == '0' ? 'selected' : '' }}>不正解</option>
+                <option value="1" {{ old('monthSelect') == '1' ? 'selected' : '' }}>正解</option>
               </select>
             </div>
             <div class="form-group col-md-3">
               <label for="daySelect">日</label>
-              <select class="form-control" id="daySelect">
-                <option value="0">不正解</option>
-                <option value="1">正解</option>
+              <select class="form-control" id="daySelect" name="daySelect" data-old="{{ old('daySelect') }}">
+                <option value="0" {{ old('daySelect', '0') == '0' ? 'selected' : '' }}>不正解</option>
+                <option value="1" {{ old('daySelect') == '1' ? 'selected' : '' }}>正解</option>
               </select>
             </div>
             <div class="form-group col-md-3">
               <label for="weekdaySelect">曜日</label>
-              <select class="form-control" id="weekdaySelect">
-                <option value="0">不正解</option>
-                <option value="1">正解</option>
+              <select class="form-control" id="weekdaySelect" name="weekdaySelect" data-old="{{ old('weekdaySelect') }}">
+                <option value="0" {{ old('weekdaySelect', '0') == '0' ? 'selected' : '' }}>不正解</option>
+                <option value="1" {{ old('weekdaySelect') == '1' ? 'selected' : '' }}>正解</option>
               </select>
             </div>
           </div>
@@ -316,17 +1047,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          <!-- 戻る先はModal1 -->
-          <button
-            type="button"
-            class="btn btn-secondary btn-prev"
-            onclick="prevModal(1)">
-            戻る
-          </button>
           <button
             type="button"
             class="btn btn-primary btn-next"
-            onclick="submitQuestion2()">
+            data-action="submit-q2">
             次へ
           </button>
         </div>
@@ -336,7 +1060,7 @@
 
   <!-- ========== Modal 3 ========== -->
   <div
-    class="modal fade"
+    class="modal fade" data-backdrop="static" data-keyboard="false"
     id="modalQuestion3"
     tabindex="-1"
     aria-hidden="true">
@@ -352,26 +1076,30 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="question">
+          <div class="question" id="q3Question">
             私たちが今いるところはどこですか？
+          </div>
+          <div id="q3HintCountdown" class="q3-countdown" style="display: none;"></div>
+          <div id="q3Hint" class="q3-hint" style="display: none;">
+            ヒント: 家ですか？病院ですか？施設ですか？
           </div>
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(2, 4)">
+            data-action="answer" data-score="2" data-next="4">
             自発的に正解 (2点)
           </button>
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(1, 4)">
+            data-action="answer" data-score="1" data-next="4">
             ヒント後に正解 (1点)
           </button>
           <button
             class="btn btn-outline-danger btn-block mb-2"
-            onclick="handleAnswer(0, 4)">
+            data-action="answer" data-score="0" data-next="4">
             不正解 (0点)
           </button>
           <div class="advice alert alert-secondary mt-3">
-            病院名を言えなくても、「病院・施設にいる」と理解していれば正解です。
+            病院名を言えなくても、「病院・施設にいる」と理解していれば正解です。5秒後にヒントを出します。
           </div>
 
           <!-- ワンポイントアドバイス（設問3） -->
@@ -387,21 +1115,13 @@
             </p>
           </div>
         </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary btn-prev"
-            onclick="prevModal(2)">
-            戻る
-          </button>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- ========== Modal 4 ========== -->
+    <!-- ========== Modal 4 ========== -->
   <div
-    class="modal fade"
+    class="modal fade" data-backdrop="static" data-keyboard="false"
     id="modalQuestion4"
     tabindex="-1"
     aria-hidden="true">
@@ -417,27 +1137,41 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="question">
-            これから言う3つの言葉を言ってみてください。（例：'桜', '猫', '電車'）
+          <div class="question" id="q4Question">
+            これから言う3つの言葉を覚えてください。後で思い出してもらいます。
+          </div>
+          <div class="word-set-panel">
+            <div class="word-set-label">今から使う言葉（どちらか1つを選択）</div>
+            <div id="q4WordsDisplay" class="word-set-words"></div>
+          </div>
+          <div class="word-set-options">
+            <label class="word-set-option">
+              <input type="radio" name="q4WordSet" value="setA" checked>
+              セットA：桜・猫・電車
+            </label>
+            <label class="word-set-option">
+              <input type="radio" name="q4WordSet" value="setB">
+              セットB：梅・犬・自動車
+            </label>
           </div>
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(3, 5)">
+            data-action="answer" data-score="3" data-next="5">
             全て言えた (3点)
           </button>
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(2, 5)">
+            data-action="answer" data-score="2" data-next="5">
             2つ言えた (2点)
           </button>
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(1, 5)">
+            data-action="answer" data-score="1" data-next="5">
             1つ言えた (1点)
           </button>
           <button
             class="btn btn-outline-danger btn-block mb-2"
-            onclick="handleAnswer(0, 5)">
+            data-action="answer" data-score="0" data-next="5">
             言えない (0点)
           </button>
           <div class="advice alert alert-secondary mt-3">
@@ -448,8 +1182,8 @@
           <div class="extra-info">
             <h6>【設問4のポイント：3つの言葉の記銘】</h6>
             <p>
-              <strong>なぜ桜・猫・電車なの？</strong><br />
-              「植物・動物・乗り物」で連想しやすいが、互いに関係がない3種類を選んでいます。
+              <strong>なぜ植物・動物・乗り物？</strong><br />
+              連想しやすいが、互いに関係がない3種類を選んでいます。
             </p>
             <p>
               <strong>2つしか覚えられない場合？</strong><br />
@@ -457,21 +1191,13 @@
             </p>
           </div>
         </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary btn-prev"
-            onclick="prevModal(3)">
-            戻る
-          </button>
-        </div>
       </div>
     </div>
   </div>
 
   <!-- ========== Modal 5 ========== -->
   <div
-    class="modal fade"
+    class="modal fade" data-backdrop="static" data-keyboard="false"
     id="modalQuestion5"
     tabindex="-1"
     aria-hidden="true">
@@ -487,22 +1213,22 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="question">
+          <div class="question" id="q5Question">
             100から7を順番に引いてください。(例: 93, 86, 79...)
           </div>
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(1, 6)">
+            data-action="answer" data-score="1" data-next="6">
             93と正答 (1点)
           </button>
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(2, 6)">
+            data-action="answer" data-score="2" data-next="6">
             93、86と連続正答 (2点)
           </button>
           <button
             class="btn btn-outline-danger btn-block mb-2"
-            onclick="handleAnswer(0, 6)">
+            data-action="answer" data-score="0" data-next="6">
             不正解 (0点)
           </button>
           <div class="advice alert alert-secondary mt-3">
@@ -522,21 +1248,13 @@
             </p>
           </div>
         </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary btn-prev"
-            onclick="prevModal(4)">
-            戻る
-          </button>
-        </div>
       </div>
     </div>
   </div>
 
   <!-- ========== Modal 6 ========== -->
   <div
-    class="modal fade"
+    class="modal fade" data-backdrop="static" data-keyboard="false"
     id="modalQuestion6"
     tabindex="-1"
     aria-hidden="true">
@@ -552,21 +1270,26 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="question">
-            これから言う数字を逆から言ってください。(例: 「6-8-2」→「2-8-6」)
+          <div class="question" id="q6Question">
+            私がこれから言う数字を逆から言ってください。（6・8・2、3・5・2・9）
           </div>
           <button
             class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(1, 7)">
-            全て正解 (1点)
+            data-action="answer" data-score="2" data-next="7">
+            両方逆唱できた (2点)
+          </button>
+          <button
+            class="btn btn-outline-primary btn-block mb-2"
+            data-action="answer" data-score="1" data-next="7">
+            3桁のみ逆唱できた (1点)
           </button>
           <button
             class="btn btn-outline-danger btn-block mb-2"
-            onclick="handleAnswer(0, 7)">
-            不正解 (0点)
+            data-action="answer" data-score="0" data-next="7">
+            不正解・失敗 (0点)
           </button>
           <div class="advice alert alert-secondary mt-3">
-            3桁で失敗したら打ち切り。1秒間隔でゆっくり読み上げると良いです。
+            まず「6-8-2」と「3-5-2-9」を提示し、両方逆唱できれば2点。難しい場合は3桁だけで判定し、逆唱できれば1点。失敗なら0点です。
           </div>
 
           <!-- ワンポイントアドバイス（設問6） -->
@@ -577,18 +1300,10 @@
               1秒に1数字くらい。早口だと混乱しやすいので注意しましょう。
             </p>
             <p>
-              <strong>4桁以上は？</strong><br />
-              3桁で失敗した時点で終了します。
+              <strong>4桁が難しい場合は？</strong><br />
+              3桁の逆唱に切り替えて判定し、失敗したら打ち切ります。
             </p>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary btn-prev"
-            onclick="prevModal(5)">
-            戻る
-          </button>
         </div>
       </div>
     </div>
@@ -596,7 +1311,7 @@
 
   <!-- ========== Modal 7 ========== -->
   <div
-    class="modal fade"
+    class="modal fade" data-backdrop="static" data-keyboard="false"
     id="modalQuestion7"
     tabindex="-1"
     aria-hidden="true">
@@ -612,31 +1327,56 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="question">
+          <div class="question" id="q7Question">
             先ほど覚えてもらった言葉をもう一度言ってみてください。
           </div>
+          <div class="recall-panel">
+            <div class="recall-title">覚えてもらった言葉（検査者用表示）</div>
+            <div id="q7WordsDisplay" class="recall-words"></div>
+            <div id="q7HintDisplay" class="recall-hint"></div>
+          </div>
+          <div class="q7-score-grid">
+            <div class="q7-score-row">
+              <div class="q7-score-word">
+                <div class="q7-word-label" data-q7-word="0"></div>
+                <div class="q7-word-hint" data-q7-hint="0"></div>
+              </div>
+              <select class="form-control q7-score-select" data-q7-score="0" name="q7Score[0]">
+                <option value="0" {{ old('q7Score.0', '0') == '0' ? 'selected' : '' }}>不正解 (0点)</option>
+                <option value="1" {{ old('q7Score.0') == '1' ? 'selected' : '' }}>ヒントあり正解 (1点)</option>
+                <option value="2" {{ old('q7Score.0') == '2' ? 'selected' : '' }}>ヒントなし正解 (2点)</option>
+              </select>
+            </div>
+            <div class="q7-score-row">
+              <div class="q7-score-word">
+                <div class="q7-word-label" data-q7-word="1"></div>
+                <div class="q7-word-hint" data-q7-hint="1"></div>
+              </div>
+              <select class="form-control q7-score-select" data-q7-score="1" name="q7Score[1]">
+                <option value="0" {{ old('q7Score.1', '0') == '0' ? 'selected' : '' }}>不正解 (0点)</option>
+                <option value="1" {{ old('q7Score.1') == '1' ? 'selected' : '' }}>ヒントあり正解 (1点)</option>
+                <option value="2" {{ old('q7Score.1') == '2' ? 'selected' : '' }}>ヒントなし正解 (2点)</option>
+              </select>
+            </div>
+            <div class="q7-score-row">
+              <div class="q7-score-word">
+                <div class="q7-word-label" data-q7-word="2"></div>
+                <div class="q7-word-hint" data-q7-hint="2"></div>
+              </div>
+              <select class="form-control q7-score-select" data-q7-score="2" name="q7Score[2]">
+                <option value="0" {{ old('q7Score.2', '0') == '0' ? 'selected' : '' }}>不正解 (0点)</option>
+                <option value="1" {{ old('q7Score.2') == '1' ? 'selected' : '' }}>ヒントあり正解 (1点)</option>
+                <option value="2" {{ old('q7Score.2') == '2' ? 'selected' : '' }}>ヒントなし正解 (2点)</option>
+              </select>
+            </div>
+          </div>
           <button
-            class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(3, 8)">
-            全て正解 (3点)
-          </button>
-          <button
-            class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(2, 8)">
-            部分的正解 (2点)
-          </button>
-          <button
-            class="btn btn-outline-primary btn-block mb-2"
-            onclick="handleAnswer(1, 8)">
-            ヒント後に正解 (1点)
-          </button>
-          <button
-            class="btn btn-outline-danger btn-block mb-2"
-            onclick="handleAnswer(0, 8)">
-            不正解 (0点)
+            class="btn btn-primary btn-block mt-3"
+            data-action="submit-q7">
+            次へ
           </button>
           <div class="advice alert alert-secondary mt-3">
-            ヒントを与える際は、1つずつ区切って出してください。
+            反応がない場合は、1語ずつ「植物です」などのヒントを出してください。
           </div>
           <!-- ワンポイントアドバイス（設問7） -->
           <div class="extra-info">
@@ -651,21 +1391,13 @@
             </p>
           </div>
         </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary btn-prev"
-            onclick="prevModal(6)">
-            戻る
-          </button>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- ========== Modal 8 (画像表示→隠す→回答) ========== -->
+  <!-- ========== Modal 8 (画像表示→回答) ========== -->
   <div
-    class="modal fade"
+    class="modal fade" data-backdrop="static" data-keyboard="false"
     id="modalQuestion8"
     tabindex="-1"
     aria-hidden="true">
@@ -685,63 +1417,73 @@
         <div class="modal-body">
           <!-- Step1: 画像を提示する画面 -->
           <div id="question8Step1">
-            <div class="question">
-              これから5つの品物を見せます。<br />
-              (例: 時計、鍵、タバコ、ペン、硬貨)
+            <div class="question" id="q8QuestionStep1">
+              これから5つの品物を1つずつ見せます。名前も一緒に読み上げてください。
             </div>
-            <div class="item-images">
-              <!--
-                ここはページロード時に JavaScript で画像を差し込みます。
-                画像ファイルは `storage/app/public/` に置き、公開には
-                `php artisan storage:link` を実行して `/storage/` 経由で参照してください。
-
-                デフォルトのファイル名（例）:
-                  - storage/watch.png
-                  - storage/key.png
-                  - storage/cigarette.png
-                  - storage/pen.png
-                  - storage/coin.png
-
-                画像を追加／差し替えしたらリロードすると表示されます。
-              -->
+          <div class="q8-current" id="q8FullscreenTarget">
+            <div id="q8CurrentName" class="q8-current-name"></div>
+            <img id="q8CurrentImage" class="q8-current-image" alt="">
+            <div id="q8CurrentFallback" class="q8-placeholder" style="display: none;"></div>
+            <div id="q8Progress" class="q8-progress"></div>
+            <div class="q8-image-actions">
+              <button
+                class="btn btn-outline-primary btn-block"
+                id="q8FullscreenBtn"
+                data-action="q8-fullscreen">
+                全画面表示
+              </button>
+              <button
+                class="btn btn-outline-secondary btn-block"
+                id="q8ExitFullscreenBtn"
+                data-action="q8-exit-fullscreen"
+                style="display: none;">
+                元のページへ戻る
+              </button>
             </div>
-            <!-- カウントダウンメッセージ（最初から表示する） -->
-            <div id="q8CountdownMessage" class="advice alert alert-info">
-              画像は5秒後に自動的に隠れます。残り <span id="q8Countdown">5</span> 秒
-            </div>
-
-            <div class="advice alert alert-secondary">
-              見せた後、一定時間(例: 5秒)が過ぎたら隠して回答を求めます。
-            </div>
-
+          </div>
+          <div class="q8-controls">
             <button
               class="btn btn-primary btn-block"
-              id="q8ManualHideBtn"
-              onclick="showQuestion8Step2(true)">
-              隠して回答へ
-            </button>
+              id="q8NextBtn"
+                data-action="q8-next">
+                次へ
+              </button>
+              <button
+                class="btn btn-outline-secondary btn-block"
+                id="q8RestartBtn"
+                data-action="q8-restart">
+                もう一度最初から
+              </button>
+              <div class="q8-retry-note">※もう一度最初から見るボタンは一度しか見て確認出来ないので最後の確認用にご使用ください。</div>
+              <div class="helper-note q8-retry-help">※必要なければ確認しなくても問題ありません。</div>
+            </div>
           </div>
 
-          <!-- Step2: 回答する画面(隠した状態) -->
+          <div class="q8-review mt-3">
+            <div class="q8-review-title">表示済みの品物（検査者用メモ）</div>
+            <div id="q8ShownList" class="q8-shown-list"></div>
+          </div>
+
+          <!-- Step2: 回答する画面 -->
           <div id="question8Step2" style="display: none;">
-            <div class="question">
+            <div class="question" id="q8QuestionStep2">
               何があったか言ってください。
             </div>
-            <p>※正解数を選択してください (0～5)</p>
-            <select class="form-control" id="itemCountSelect">
-              <option value="0">0個正解</option>
-              <option value="1">1個正解</option>
-              <option value="2">2個正解</option>
-              <option value="3">3個正解</option>
-              <option value="4">4個正解</option>
-              <option value="5">5個正解</option>
+            <p>※正解数を選択してください (0～5)。1つ正解につき1点です。</p>
+            <select class="form-control" id="itemCountSelect" name="itemCountSelect">
+              <option value="0" {{ old('itemCountSelect', '0') == '0' ? 'selected' : '' }}>0個正解</option>
+              <option value="1" {{ old('itemCountSelect') == '1' ? 'selected' : '' }}>1個正解</option>
+              <option value="2" {{ old('itemCountSelect') == '2' ? 'selected' : '' }}>2個正解</option>
+              <option value="3" {{ old('itemCountSelect') == '3' ? 'selected' : '' }}>3個正解</option>
+              <option value="4" {{ old('itemCountSelect') == '4' ? 'selected' : '' }}>4個正解</option>
+              <option value="5" {{ old('itemCountSelect') == '5' ? 'selected' : '' }}>5個正解</option>
             </select>
             <div class="advice alert alert-secondary mt-3">
               相互に無関係な物を選ぶのがポイント。関連物は避けてください。
             </div>
             <button
               class="btn btn-primary btn-block mt-3"
-              onclick="submitQuestion8()">
+              data-action="q8-submit">
               次へ
             </button>
           </div>
@@ -750,21 +1492,13 @@
             <h6>【設問8のポイント：5つの物品記銘】</h6>
             <p>
               <strong>どんな物がいい？</strong><br />
-              携帯電話など馴染みが薄い物は避け、時計や鍵など誰でも知っている物を選びましょう。
+              馴染みがある物を中心に、時計や鍵など身近な物を選びましょう。
             </p>
             <p>
               <strong>提示するときの注意？</strong><br />
-              「これは◯◯ですね」と1つずつ説明しながら見せ、最後に隠します。
+              1枚ずつ名前を読み上げて見せ、最後にまとめて確認します。
             </p>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary btn-prev"
-            onclick="prevModal(7)">
-            戻る
-          </button>
         </div>
       </div>
     </div>
@@ -772,7 +1506,7 @@
 
   <!-- ========== Modal 9 ========== -->
   <div
-    class="modal fade"
+    class="modal fade" data-backdrop="static" data-keyboard="false"
     id="modalQuestion9"
     tabindex="-1"
     aria-hidden="true">
@@ -789,18 +1523,33 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="question">
+          <div class="question" id="q9Question">
             知っている野菜の名前をできるだけ多く言ってください。
           </div>
           <p>該当する個数の区分を選択してください。</p>
-          <select class="form-control" id="vegetableSelect">
-            <option value="0">5個以下</option>
-            <option value="1">6個</option>
-            <option value="2">7個</option>
-            <option value="3">8個</option>
-            <option value="4">9個</option>
-            <option value="5">10個以上</option>
+          <select class="form-control" id="vegetableSelect" name="vegetableSelect">
+            <option value="0" {{ old('vegetableSelect', '0') == '0' ? 'selected' : '' }}>5個以下</option>
+            <option value="1" {{ old('vegetableSelect') == '1' ? 'selected' : '' }}>6個</option>
+            <option value="2" {{ old('vegetableSelect') == '2' ? 'selected' : '' }}>7個</option>
+            <option value="3" {{ old('vegetableSelect') == '3' ? 'selected' : '' }}>8個</option>
+            <option value="4" {{ old('vegetableSelect') == '4' ? 'selected' : '' }}>9個</option>
+            <option value="5" {{ old('vegetableSelect') == '5' ? 'selected' : '' }}>10個以上</option>
           </select>
+          <div class="mt-3">
+            <div class="helper-note">※野菜名を最大10個まで記録できます（フリック入力対応）。</div>
+            <div class="vegetable-grid">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="1つ目" name="vegetables[0]" value="{{ old('vegetables.0') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="2つ目" name="vegetables[1]" value="{{ old('vegetables.1') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="3つ目" name="vegetables[2]" value="{{ old('vegetables.2') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="4つ目" name="vegetables[3]" value="{{ old('vegetables.3') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="5つ目" name="vegetables[4]" value="{{ old('vegetables.4') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="6つ目" name="vegetables[5]" value="{{ old('vegetables.5') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="7つ目" name="vegetables[6]" value="{{ old('vegetables.6') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="8つ目" name="vegetables[7]" value="{{ old('vegetables.7') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="9つ目" name="vegetables[8]" value="{{ old('vegetables.8') }}">
+              <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="10こ目" name="vegetables[9]" value="{{ old('vegetables.9') }}">
+            </div>
+          </div>
           <div class="advice alert alert-secondary mt-3">
             同じ野菜名を繰り返しても記録し、後で重複分を差し引いてください。
           </div>
@@ -821,14 +1570,8 @@
         <div class="modal-footer">
           <button
             type="button"
-            class="btn btn-secondary btn-prev"
-            onclick="prevModal(8)">
-            戻る
-          </button>
-          <button
-            type="button"
             class="btn btn-primary btn-next"
-            onclick="submitQuestion9()">
+            data-action="submit-q9">
             結果を見る
           </button>
         </div>
@@ -837,7 +1580,7 @@
   </div>
 
   <!-- ========== 結果モーダル ========== -->
-  <div class="modal fade" id="modalResult" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalResult" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -851,8 +1594,7 @@
           <p id="resultText" class="text-center font-weight-bold"></p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">閉じる</button>
-          <button type="button" class="btn btn-primary" onclick="resetQuiz()">もう一度検査</button>
+          <a href="{{ url('/') }}" class="btn btn-outline-primary" id="returnTopLink">トップへ戻る</a>
         </div>
       </div>
     </div>
@@ -862,449 +1604,17 @@
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-  <!-- もし桜エフェクトを適用するなら以下を読み込み -->
-  <script src="{{ asset('js/jquery-sakura.min.js') }}"></script>
-
-  <script>
-    // ==============================
-    // 桜エフェクト（必要な場合のみ）
-    // ==============================
-    $(function() {
-      $('body').sakura({
-        className: 'sakura',
-      });
-    });
-
-    // ------------------------------
-    // 西暦年プルダウンを初期化
-    // ------------------------------
-    function populateYears(startYear = 1900) {
-      const yearSelect = document.getElementById('birthYear');
-      yearSelect.innerHTML = '';
-      const current = new Date().getFullYear();
-      for (let y = current; y >= startYear; y--) {
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y + '年';
-        yearSelect.appendChild(opt);
-      }
-    }
-
-    // ページロードで西暦を生成
-    document.addEventListener('DOMContentLoaded', function() {
-      populateYears(1900);
-      // Q8の画像を動的に配置
-      try {
-        populateQ8Images();
-      } catch (e) {
-        // noop
-      }
-    });
-
-    // 生年月日不明フラグ
-    let birthUnknown = false;
-
-    // ------------------------------
-    // 生年月日が不明瞭ボタンの処理
-    // ------------------------------
-    function markBirthUnknown() {
-      birthUnknown = true;
-      // フラッシュメッセージを表示
-      const flash = document.getElementById('birthUnknownFlash');
-      if (flash) {
-        flash.innerHTML = '<strong>注意：</strong>生年月日が不明瞭なため、設問1は自動的に「0点」として扱います。保険証等で確認できる場合は必ず確認してください。<br><small>いきさつ: ご家族や保険証で年齢が確認できない場合、正確な年齢を問うことが困難なため、検査の公平性を保つためにこのオプションを設けています。</small>';
-        flash.style.display = 'block';
-      }
-
-      // 検査開始ボタンを有効化して、年齢表示をダミーにセット（0扱い）
-      correctAge = null;
-      document.getElementById('calculatedAgeArea').style.display = 'none';
-      document.getElementById('startQuizBtn').disabled = false;
-    }
-
-    // ==============================
-    // スコア管理用変数
-    // ==============================
-    let score = 0;
-    let correctAge = null; // 計算した年齢を保持
-
-    // ==============================
-    // 生年月日→年齢を計算
-    // ==============================
-
-    function calculateAge() {
-      // 生年月日不明フラグが立っている場合はここで処理せずに早期return
-      if (birthUnknown) {
-        // 明示的に計算をスキップ
-        correctAge = null;
-        document.getElementById('calculatedAgeArea').style.display = 'none';
-        document.getElementById('startQuizBtn').disabled = false;
-        return;
-      }
-
-      // 西暦年取得（select の値は西暦）
-      const y = parseInt(document.getElementById('birthYear').value, 10);
-      const m = parseInt(document.getElementById('birthMonth').value, 10);
-      const d = parseInt(document.getElementById('birthDay').value, 10);
-
-      // 数値チェック
-      if (isNaN(y) || isNaN(m) || isNaN(d)) {
-        alert('生年月日を正しく入力してください。');
-        return;
-      }
-
-      // 範囲チェック
-      if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) {
-        alert('生年月日の範囲が不正です。');
-        return;
-      }
-
-      // 実在日付チェック
-      const birthDate = new Date(y, m - 1, d);
-      if (isNaN(birthDate.getTime())) {
-        alert('実在しない日付のようです。正しく入力してください。');
-        return;
-      }
-
-      const now = new Date();
-      let age = now.getFullYear() - birthDate.getFullYear();
-      const thisYearBirthday = new Date(
-        now.getFullYear(),
-        birthDate.getMonth(),
-        birthDate.getDate()
-      );
-      if (now < thisYearBirthday) {
-        age--;
-      }
-      if (age > 120) {
-        alert('入力された生年月日から算出された年齢が120歳を超えています。');
-        return;
-      } else if (age < 0) {
-        alert('未来の生年月日です。正しい値を入力してください。');
-        return;
-      }
-      correctAge = age;
-      document.getElementById('calculatedAgeSpan').textContent = String(age);
-      document.getElementById('calculatedAgeArea').style.display = 'block';
-      document.getElementById('startQuizBtn').disabled = false;
-    }
-
-    // ==============================
-    // 検査開始
-    // ==============================
-    function startQuiz() {
-      // スコア等を初期化してイントロ画面を隠す
-      score = 0;
-      // イントロ画面を隠す
-      document.getElementById('introSection').style.display = 'none';
-
-      // 生年月日不明フラグが立っている場合: 設問1をスキップして問1が0点となる旨を通知
-      if (birthUnknown) {
-        // q1SkipNotice に説明を表示
-        const notice = document.getElementById('q1SkipNotice');
-        if (notice) {
-          notice.innerHTML = '<div class="alert alert-warning"><strong>注意：</strong>生年月日が不明瞭なため、設問1は自動的に「0点」として扱いました。保険証等で確認できる場合は必ず確認してください。</div>';
-        }
-        // 直接設問2を開く
-        $('#modalQuestion2').modal('show');
-      } else {
-        // 設問1を開く
-        $('#modalQuestion1').modal('show');
-
-        // 設問1モーダルの文言に"計算した年齢"を表示
-        if (correctAge !== null) {
-          document.getElementById('calculatedAgeDisplay').textContent = String(correctAge);
-        }
-      }
-    }
-
-    // ==============================
-    // handleAnswer(加点, 次のモーダル番号)
-    // ==============================
-    function handleAnswer(scoreToAdd, nextModalNum) {
-      score += scoreToAdd;
-      $('#modalQuestion' + (nextModalNum - 1)).modal('hide');
-      $('#modalQuestion' + nextModalNum).modal('show');
-    }
-
-    // ==============================
-    // submitQuestion2: 設問2の処理
-    // ==============================
-    function submitQuestion2() {
-      // year / month / day / weekday
-      const yearScore = parseInt(document.getElementById('yearSelect').value, 10);
-      const monthScore = parseInt(document.getElementById('monthSelect').value, 10);
-      const dayScore = parseInt(document.getElementById('daySelect').value, 10);
-      const weekdayScore = parseInt(document.getElementById('weekdaySelect').value, 10);
-
-      score += (yearScore + monthScore + dayScore + weekdayScore);
-
-      $('#modalQuestion2').modal('hide');
-      $('#modalQuestion3').modal('show');
-    }
-
-    // ==============================
-    // submitQuestion8: 設問8の処理
-    // ==============================
-    // カウントダウンタイマー（設問8）
-    let q8Timer = null;
-    let q8Remaining = 5;
-
-    function startQ8Countdown(seconds = 5) {
-      // 既にタイマーが動作中ならクリア
-      stopQ8Countdown();
-      q8Remaining = seconds;
-      const span = document.getElementById('q8Countdown');
-      if (span) span.textContent = String(q8Remaining);
-
-      q8Timer = setInterval(() => {
-        q8Remaining -= 1;
-        if (span) span.textContent = String(q8Remaining);
-        if (q8Remaining <= 0) {
-          // タイマー停止
-          stopQ8Countdown();
-          // 自動で画像を隠して回答へ遷移
-          showQuestion8Step2(false);
-        }
-      }, 1000);
-    }
-
-    // ==============================
-    // 設問8の画像を動的に読み込んで表示する
-    // 使い方: storage/app/public に画像を置き、/storage/<filename> で参照します。
-    // 配列 `q8ImageNames` に表示したいファイル名(5つ推奨)を入れてください。
-    // ==============================
-    const q8ImageNames = ['watch.png', 'key.png', 'cigarette.png', 'pen.png', 'coin.png'];
-
-    function populateQ8Images() {
-      const container = document.querySelector('.item-images');
-      if (!container) return;
-      container.innerHTML = '';
-
-      q8ImageNames.forEach(name => {
-        const img = document.createElement('img');
-        img.src = '/storage/' + name;
-        img.alt = name.replace(/\.[^/.]+$/, '');
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-        img.onerror = function() {
-          // 画像がない場合はプレースホルダーを表示
-          const fallback = document.createElement('div');
-          fallback.className = 'q8-placeholder';
-          fallback.textContent = img.alt;
-          fallback.style.cssText = 'display:flex;align-items:center;justify-content:center;background:#f7f7f7;border:1px dashed #ddd;color:#666;padding:12px;height:110px;';
-          if (img.parentNode) img.parentNode.replaceChild(fallback, img);
-        };
-        container.appendChild(img);
-      });
-    }
-
-    function stopQ8Countdown() {
-      if (q8Timer !== null) {
-        clearInterval(q8Timer);
-        q8Timer = null;
-      }
-      const span = document.getElementById('q8Countdown');
-      if (span) span.textContent = '0';
-    }
-    /**
-     * showQuestion8Step2(manual = true)
-     * manual が true の場合はユーザーが手動でボタンを押した扱いとし、
-     * タイマーを停止する。false の場合は自動でタイマーから呼ばれた。
-     */
-    function showQuestion8Step2(manual = true) {
-      // タイマーが動いていれば停止
-      stopQ8Countdown();
-
-      // 画像を隠し、回答画面を表示
-      const step1 = document.getElementById('question8Step1');
-      const step2 = document.getElementById('question8Step2');
-      if (step1) step1.style.display = 'none';
-      if (step2) step2.style.display = 'block';
-      // 予防的にカウントダウンメッセージを非表示
-      const msg = document.getElementById('q8CountdownMessage');
-      if (msg) msg.style.display = 'none';
-    }
-
-    function submitQuestion8() {
-      const count = parseInt(document.getElementById('itemCountSelect').value, 10);
-      let point = 0;
-      if (count === 5) {
-        point = 3;
-      } else if (count === 4) {
-        point = 2;
-      } else if (count >= 1) {
-        point = 1;
-      } else {
-        point = 0;
-      }
-      score += point;
-
-      $('#modalQuestion8').modal('hide');
-      $('#modalQuestion9').modal('show');
-    }
-
-    // ==============================
-    // submitQuestion9: 設問9の処理
-    // ==============================
-    function submitQuestion9() {
-      const vegetableScore = parseInt(document.getElementById('vegetableSelect').value, 10);
-      score += vegetableScore;
-      showResult(); // 結果表示
-    }
-
-    // ==============================
-    // 戻るボタン
-    // ==============================
-    function prevModal(questionNumber) {
-      // 特殊ケース: 設問2の戻る（questionNumber===1）が呼ばれた際に
-      // 生年月日不明フラグが立っている場合は設問1は存在しないため
-      // イントロに戻す振る舞いにする
-      if (questionNumber === 1 && birthUnknown) {
-        $('#modalQuestion2').modal('hide');
-        document.getElementById('introSection').style.display = 'block';
-        // 保留表示などをクリア
-        const notice = document.getElementById('q1SkipNotice');
-        if (notice) notice.innerHTML = '';
-        return;
-      }
-
-      $('#modalQuestion' + questionNumber).modal('hide');
-      $('#modalQuestion' + (questionNumber - 1)).modal('show');
-    }
-
-    // モーダル表示/非表示で設問8のカウントダウンを管理
-    $(document).ready(function() {
-      $('#modalQuestion8').on('shown.bs.modal', function() {
-        // ステップ1を初期状態にしてメッセージを表示
-        const step1 = document.getElementById('question8Step1');
-        const step2 = document.getElementById('question8Step2');
-        if (step1) step1.style.display = 'block';
-        if (step2) step2.style.display = 'none';
-        const msg = document.getElementById('q8CountdownMessage');
-        if (msg) msg.style.display = 'block';
-        startQ8Countdown(5);
-      });
-
-      $('#modalQuestion8').on('hidden.bs.modal', function() {
-        // モーダル閉鎖時は必ずタイマーを停止して表示をリセット
-        stopQ8Countdown();
-        const step1 = document.getElementById('question8Step1');
-        const step2 = document.getElementById('question8Step2');
-        if (step1) step1.style.display = 'block';
-        if (step2) step2.style.display = 'none';
-        const msg = document.getElementById('q8CountdownMessage');
-        if (msg) msg.style.display = 'block';
-      });
-
-      // 設問2モーダルが表示されたら、検査者用に正しい日付を表示する
-      $('#modalQuestion2').on('shown.bs.modal', function() {
-        const now = new Date();
-        const yyyy = now.getFullYear();
-        const mm = now.getMonth() + 1;
-        const dd = now.getDate();
-        const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-        const wd = weekdays[now.getDay()];
-        const display = `<div class="alert alert-light"><strong>正答:</strong> ${yyyy}年 ${mm}月 ${dd}日 （${wd}）</div>`;
-        const el = document.getElementById('q2CorrectDate');
-        if (el) el.innerHTML = display;
-
-        // (任意) 検査者の手間を減らすため、正解の option を選択状態にしておく
-        try {
-          document.getElementById('yearSelect').value = '1';
-          document.getElementById('monthSelect').value = '1';
-          document.getElementById('daySelect').value = '1';
-          const weekdayMap = {
-            0: '日',
-            1: '月',
-            2: '火',
-            3: '水',
-            4: '木',
-            5: '金',
-            6: '土'
-          };
-          document.getElementById('weekdaySelect').value = '1';
-        } catch (e) {
-          // noop
-        }
-        // 生年月日不明で設問1がスキップされた場合、戻るボタンはイントロへ戻す仕様にするため無効化
-        try {
-          const prevBtn = document.querySelector('#modalQuestion2 .btn-prev');
-          if (prevBtn) prevBtn.disabled = birthUnknown;
-        } catch (e) {
-          // noop
-        }
-      });
-    });
-
-    // ==============================
-    // showResult: 最終結果
-    // ==============================
-    function showResult() {
-      let resultText = '';
-      if (score >= 20) {
-        resultText = '異常なし';
-      } else if (score >= 16) {
-        resultText = '認知症の疑いあり';
-      } else if (score >= 11) {
-        resultText = '中程度の認知症';
-      } else if (score >= 5) {
-        resultText = 'やや高度の認知症';
-      } else {
-        resultText = '高度の認知症';
-      }
-
-      document.getElementById('scoreDisplay').innerText = `合計スコア: ${score} 点`;
-      document.getElementById('resultText').innerText = `結果: ${resultText}`;
-
-      $('#modalResult').modal('show');
-    }
-
-    // ==============================
-    // resetQuiz: 検査を最初からやり直す
-    // ==============================
-    function resetQuiz() {
-      // すべてのモーダルを閉じる
-      $('.modal').modal('hide');
-      stopQ8Countdown();
-
-      // 状態リセット
-      score = 0;
-      correctAge = null;
-      birthUnknown = false;
-
-      // UI を初期状態に戻す
-      document.getElementById('introSection').style.display = 'block';
-      const flash = document.getElementById('birthUnknownFlash');
-      if (flash) {
-        flash.style.display = 'none';
-        flash.innerHTML = '';
-      }
-      const startBtn = document.getElementById('startQuizBtn');
-      if (startBtn) startBtn.disabled = true;
-
-      const calcArea = document.getElementById('calculatedAgeArea');
-      if (calcArea) calcArea.style.display = 'none';
-
-      const q1Notice = document.getElementById('q1SkipNotice');
-      if (q1Notice) q1Notice.innerHTML = '';
-
-      // 設問8の表示を初期化
-      const step1 = document.getElementById('question8Step1');
-      const step2 = document.getElementById('question8Step2');
-      if (step1) step1.style.display = 'block';
-      if (step2) step2.style.display = 'none';
-      const q8msg = document.getElementById('q8CountdownMessage');
-      if (q8msg) q8msg.style.display = 'block';
-
-      // リセット後、年のプルダウンは残すが選択を最新に
-      try {
-        populateYears(1900);
-      } catch (e) {
-        // noop
-      }
-    }
-  </script>
+  <script src="{{ asset('JS/hasegawa_quiz.js') }}"></script>
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+

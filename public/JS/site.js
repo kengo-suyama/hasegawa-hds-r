@@ -1,146 +1,138 @@
-// site.js: サイト共通の JS（index.js を統合）
-
-// --------------------------------------------------
-// 桜エフェクト (Canvas)
-// - モバイル対応: DPR（デバイスピクセル比）を考慮したリサイズ
-// - ページ非表示時はアニメーションを停止してバッテリー節約
-// - 画面幅が狭い場合は花びらの数を削減
-// - Canvas 未サポート時はフォールバック（何もしない）
-// --------------------------------------------------
+// site.js: サイト共通の JS（花びら演出）
 (function() {
-  const canvas = document.getElementById('sakura-canvas');
-  // Canvas が無ければ何もしない（フォールバック）
-  if (!canvas || !canvas.getContext) return;
-  const ctx = canvas.getContext('2d');
+  const THEME_KEY = 'careMateTheme';
 
-  // デバイス性能に応じて花びら数を調整
-  const basePetalCount = 40; // デスクトップ向け基準
-  const smallScreenPetalCount = 18; // モバイル向け
-
-  // DPR (devicePixelRatio) によるスケーリング
-  function setCanvasSize() {
-    const dpr = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = Math.floor(window.innerWidth * dpr);
-    canvas.height = Math.floor(window.innerHeight * dpr);
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // DPIスケールを設定
+  function getPreferredTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
   }
 
-  // ペタルの数は画面幅で調整（狭い画面では減らす）
+  function applyTheme(theme, persist = true) {
+    const root = document.documentElement;
+    root.classList.toggle('theme-dark', theme === 'dark');
+    root.classList.toggle('theme-light', theme === 'light');
+    if (document.body) {
+      document.body.classList.toggle('theme-dark', theme === 'dark');
+      document.body.classList.toggle('theme-light', theme === 'light');
+    }
+    const button = document.getElementById('themeToggleBtn');
+    if (button) {
+      button.textContent = theme === 'dark' ? 'ライトモード' : 'ダークモード';
+    }
+    if (persist) {
+      localStorage.setItem(THEME_KEY, theme);
+    }
+  }
+
+  function initThemeToggle() {
+    const button = document.getElementById('themeToggleBtn');
+    if (!button) return;
+    applyTheme(getPreferredTheme(), false);
+    button.addEventListener('click', () => {
+      const isDark = document.body.classList.contains('theme-dark');
+      applyTheme(isDark ? 'light' : 'dark');
+    });
+  }
+
+  function getPetalScale() {
+    const base = Math.min(window.innerWidth || 0, window.innerHeight || 0);
+    if (!base) return 1;
+    return Math.max(0.7, Math.min(base / 760, 1.2));
+  }
+
   function getPetalCount() {
-    try {
-      const w = Math.min(window.innerWidth, window.screen.width || window.innerWidth);
-      if (w < 480) return smallScreenPetalCount;
-      if (w < 900) return Math.round(basePetalCount * 0.7);
-      return basePetalCount;
-    } catch (e) {
-      return basePetalCount;
+    const width = Math.min(window.innerWidth || 0, window.screen?.width || window.innerWidth || 0);
+    if (width < 480) return 22;
+    if (width < 900) return 32;
+    return 42;
+  }
+
+  function initPetalFall() {
+    const layer = document.getElementById('petalLayer');
+    if (!layer) return;
+    layer.innerHTML = '';
+
+    const petalCount = getPetalCount();
+    for (let i = 0; i < petalCount; i += 1) {
+      const petal = document.createElement('div');
+      petal.className = 'petal';
+
+      const sway = document.createElement('span');
+      sway.className = 'petal-sway';
+
+      const sizeScale = getPetalScale();
+      const size = (16 + Math.random() * 28) * sizeScale;
+      const fallDuration = 9 + Math.random() * 14;
+      const swayDuration = 2.6 + Math.random() * 5.2;
+      const startX = Math.random() * 100;
+      const fallX = -40 + Math.random() * 80;
+      const swayX = -90 + Math.random() * 180;
+      const rotate = 40 + Math.random() * 140;
+      const rotateEnd = rotate + 40 + Math.random() * 80;
+      const opacity = 0.65 + Math.random() * 0.3;
+
+      const hue = 342 + Math.random() * 14;
+      const saturation = 35 + Math.random() * 35;
+      const lightness = 78 + Math.random() * 16;
+      const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+      const highlight = `hsl(${hue}, ${saturation}%, ${Math.min(lightness + 10, 92)}%)`;
+      const shadow = `hsl(${hue}, ${saturation}%, ${Math.max(lightness - 12, 50)}%)`;
+
+      petal.style.left = `${startX}vw`;
+      petal.style.setProperty('--fall-duration', `${fallDuration}s`);
+      petal.style.setProperty('--fall-x', `${fallX}vw`);
+      petal.style.animationDelay = `${-Math.random() * fallDuration}s`;
+
+      sway.style.setProperty('--petal-size', `${size}px`);
+      sway.style.setProperty('--petal-color', color);
+      sway.style.setProperty('--petal-highlight', highlight);
+      sway.style.setProperty('--petal-shadow', shadow);
+      sway.style.setProperty('--sway-duration', `${swayDuration}s`);
+      sway.style.setProperty('--sway-x', `${swayX}px`);
+      sway.style.setProperty('--sway-rotate', `${rotate}deg`);
+      sway.style.setProperty('--sway-rotate-end', `${rotateEnd}deg`);
+      sway.style.setProperty('--petal-opacity', `${opacity}`);
+      sway.style.animationDelay = `${-Math.random() * swayDuration}s`;
+
+      petal.appendChild(sway);
+      layer.appendChild(petal);
     }
   }
 
-  let petals = [];
-  const colors = ['#ffb7c5', '#ffe4ee', '#ffb7c5', '#fff0f5'];
-
-  function random(min, max) { return Math.random() * (max - min) + min; }
-
-  function createPetal() {
-    return {
-      x: random(0, canvas.width),
-      y: random(-canvas.height, 0),
-      r: random(6, 18),
-      speed: random(0.6, 2.2),
-      drift: random(-0.6, 0.6),
-      angle: random(0, 2 * Math.PI),
-      color: colors[Math.floor(Math.random() * colors.length)]
-    };
+  function updateNetworkStatus() {
+    const banner = document.getElementById('networkStatus');
+    if (!banner) return;
+    banner.style.display = navigator.onLine ? 'none' : 'block';
   }
 
-  function drawPetal(p) {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.angle);
-    ctx.beginPath();
-    // 花びらをベジエで描画（軽量）
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(-p.r/2, -p.r/2, -p.r, p.r/2, 0, p.r);
-    ctx.bezierCurveTo(p.r, p.r/2, p.r/2, -p.r/2, 0, 0);
-    ctx.closePath();
-    ctx.fillStyle = p.color;
-    ctx.globalAlpha = 0.8;
-    // モバイルではシャドウを下げてパフォーマンス確保
-    ctx.shadowColor = p.color;
-    ctx.shadowBlur = (window.innerWidth < 480) ? 2 : 8;
-    ctx.fill();
-    ctx.restore();
+  function initLoadingOverlay() {
+    const overlay = document.getElementById('globalLoading');
+    if (!overlay) return;
+    const timer = setTimeout(() => {
+      overlay.classList.add('is-visible');
+    }, 300);
+    window.addEventListener('load', () => {
+      clearTimeout(timer);
+      overlay.classList.remove('is-visible');
+    }, { once: true });
   }
 
-  function updatePetal(p) {
-    p.y += p.speed;
-    p.x += p.drift;
-    p.angle += random(-0.02, 0.02);
-    if (p.y > canvas.height + 20 || p.x < -40 || p.x > canvas.width + 40) {
-      Object.assign(p, createPetal());
-      p.y = -20;
-    }
+  let resizeTimer = null;
+  function handleResize() {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(initPetalFall, 200);
   }
 
-  let rafId = null;
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < petals.length; i++) {
-      const p = petals[i];
-      drawPetal(p);
-      updatePetal(p);
-    }
-    rafId = requestAnimationFrame(animate);
-  }
-
-  // ページが非表示のときはアニメを止める
-  function handleVisibility() {
-    if (document.hidden) {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = null;
-    } else {
-      if (!rafId) animate();
-    }
-  }
-
-  // 初期化
-  function init() {
-    setCanvasSize();
-    const count = getPetalCount();
-    petals = Array.from({length: count}, createPetal);
-    // 既に表示中ならアニメ開始
-    if (!document.hidden) animate();
-  }
-
-  // リサイズ/可視性のイベント
-  window.addEventListener('resize', function() {
-    // resize の度にcanvasを再設定し、花びら数を調整
-    setCanvasSize();
-    const newCount = getPetalCount();
-    if (newCount !== petals.length) {
-      petals = Array.from({length: newCount}, createPetal);
-    }
+  document.addEventListener('DOMContentLoaded', () => {
+    initPetalFall();
+    initLoadingOverlay();
+    updateNetworkStatus();
+    initThemeToggle();
   });
-  document.addEventListener('visibilitychange', handleVisibility);
-
-  // タッチ操作中はパフォーマンスのため花びら数を一時的に減らす
-  let touchTimeout = null;
-  function reduceForTouch() {
-    if (touchTimeout) clearTimeout(touchTimeout);
-    const original = petals.length;
-    if (original > 10) petals = petals.slice(0, Math.max(8, Math.round(original / 3)));
-    touchTimeout = setTimeout(function() {
-      // touch終了後、元に戻す
-      petals = Array.from({length: getPetalCount()}, createPetal);
-    }, 1500);
-  }
-  window.addEventListener('touchstart', reduceForTouch, {passive:true});
-
-  // 初期化呼び出し
-  init();
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('online', updateNetworkStatus);
+  window.addEventListener('offline', updateNetworkStatus);
 })();
-
-// 追加の初期化や共通処理があればここに追記
