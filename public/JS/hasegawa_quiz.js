@@ -172,6 +172,9 @@
       if (!restored) {
         resetQ8Sequence();
       }
+      updateStartButtonState();
+      setConsultOpen(false);
+      initConsultFabDrag();
     });
 
     // 生年月日不明フラグ
@@ -192,7 +195,7 @@
       // 検査開始ボタンを有効化して、年齢表示をダミーにセット（0扱い）
       correctAge = null;
       document.getElementById('calculatedAgeArea').style.display = 'none';
-      document.getElementById('startQuizBtn').disabled = false;
+      updateStartButtonState();
       saveState();
     }
 
@@ -216,6 +219,148 @@
     function hideBackNotice() {
       const notice = document.getElementById('backNotice');
       if (notice) notice.style.display = 'none';
+    }
+
+    function isPrecheckConfirmed() {
+      const checkbox = document.getElementById('precheckConfirm');
+      return checkbox ? checkbox.checked : false;
+    }
+
+    function updateStartButtonState() {
+      const startBtn = document.getElementById('startQuizBtn');
+      if (!startBtn) return;
+      const isReady = (birthUnknown || correctAge !== null) && isPrecheckConfirmed();
+      startBtn.disabled = !isReady;
+    }
+
+    function setConsultOpen(isOpen) {
+      const sheet = document.getElementById('consultSheet');
+      const backdrop = document.getElementById('consultBackdrop');
+      const button = document.getElementById('consultFab');
+      document.body.classList.toggle('consult-open', Boolean(isOpen));
+      if (sheet) sheet.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+      if (backdrop) backdrop.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+      if (button) button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+
+    function clampConsultFab(fab, margin = 12) {
+      const rect = fab.getBoundingClientRect();
+      const maxLeft = window.innerWidth - rect.width - margin;
+      const maxTop = window.innerHeight - rect.height - margin;
+      const nextLeft = Math.min(maxLeft, Math.max(margin, rect.left));
+      const nextTop = Math.min(maxTop, Math.max(margin, rect.top));
+      if (rect.left !== nextLeft || rect.top !== nextTop) {
+        fab.style.left = `${nextLeft}px`;
+        fab.style.top = `${nextTop}px`;
+        fab.style.right = 'auto';
+        fab.style.bottom = 'auto';
+      }
+    }
+
+    function initConsultFabDrag() {
+      const fab = document.getElementById('consultFab');
+      if (!fab) return;
+      let dragState = null;
+
+      fab.addEventListener('pointerdown', (event) => {
+        if (event.button && event.button !== 0) return;
+        const rect = fab.getBoundingClientRect();
+        dragState = {
+          startX: event.clientX,
+          startY: event.clientY,
+          startLeft: rect.left,
+          startTop: rect.top,
+          width: rect.width,
+          height: rect.height,
+          moved: false
+        };
+        fab.dataset.dragging = 'false';
+        fab.classList.add('is-dragging');
+        fab.setPointerCapture(event.pointerId);
+        event.preventDefault();
+      });
+
+      fab.addEventListener('pointermove', (event) => {
+        if (!dragState) return;
+        const dx = event.clientX - dragState.startX;
+        const dy = event.clientY - dragState.startY;
+        if (!dragState.moved && Math.hypot(dx, dy) > 6) {
+          dragState.moved = true;
+          fab.dataset.dragging = 'true';
+        }
+        if (!dragState.moved) return;
+        const margin = 12;
+        const maxLeft = window.innerWidth - dragState.width - margin;
+        const maxTop = window.innerHeight - dragState.height - margin;
+        const nextLeft = Math.min(maxLeft, Math.max(margin, dragState.startLeft + dx));
+        const nextTop = Math.min(maxTop, Math.max(margin, dragState.startTop + dy));
+        fab.style.left = `${nextLeft}px`;
+        fab.style.top = `${nextTop}px`;
+        fab.style.right = 'auto';
+        fab.style.bottom = 'auto';
+      });
+
+      const endDrag = (event) => {
+        if (!dragState) return;
+        fab.classList.remove('is-dragging');
+        if (dragState.moved) {
+          fab.dataset.dragging = 'true';
+          setTimeout(() => {
+            fab.dataset.dragging = 'false';
+          }, 150);
+        } else {
+          fab.dataset.dragging = 'false';
+        }
+        dragState = null;
+        try {
+          fab.releasePointerCapture(event.pointerId);
+        } catch (e) {
+          // noop
+        }
+      };
+
+      fab.addEventListener('pointerup', endDrag);
+      fab.addEventListener('pointercancel', endDrag);
+
+      window.addEventListener('resize', () => {
+        if (fab.style.left || fab.style.top) {
+          clampConsultFab(fab);
+        }
+      });
+    }
+
+    function exitApp() {
+      clearStoredState();
+      hideBackNotice();
+
+      const canExitNavigator = typeof navigator !== 'undefined'
+        && navigator.app
+        && typeof navigator.app.exitApp === 'function';
+      if (canExitNavigator) {
+        navigator.app.exitApp();
+        return;
+      }
+
+      const capacitorExit = window.Capacitor
+        && window.Capacitor.Plugins
+        && window.Capacitor.Plugins.App
+        && window.Capacitor.Plugins.App.exitApp;
+      if (typeof capacitorExit === 'function') {
+        capacitorExit();
+        return;
+      }
+
+      try {
+        window.close();
+      } catch (e) {
+        // noop
+      }
+
+      setTimeout(() => {
+        if (!document.hidden) {
+          returnToTop();
+        }
+      }, 200);
     }
 
     function readStoredState() {
@@ -423,7 +568,7 @@
 
       const startBtn = document.getElementById('startQuizBtn');
       if (startBtn) {
-        startBtn.disabled = !(birthUnknown || correctAge !== null);
+        updateStartButtonState();
       }
 
       restoreQ8State(state);
@@ -580,7 +725,7 @@
         // 明示的に計算をスキップ
         correctAge = null;
         document.getElementById('calculatedAgeArea').style.display = 'none';
-        document.getElementById('startQuizBtn').disabled = false;
+        updateStartButtonState();
         return;
       }
 
@@ -628,7 +773,7 @@
       correctAge = age;
       document.getElementById('calculatedAgeSpan').textContent = String(age);
       document.getElementById('calculatedAgeArea').style.display = 'block';
-      document.getElementById('startQuizBtn').disabled = false;
+      updateStartButtonState();
       saveState();
     }
 
@@ -987,6 +1132,19 @@
             $('#' + lastModalId).modal('show');
           }
           break;
+        case 'exit-app':
+          exitApp();
+          break;
+        case 'toggle-consult':
+          if (actionButton.id === 'consultFab' && actionButton.dataset.dragging === 'true') {
+            actionButton.dataset.dragging = 'false';
+            break;
+          }
+          setConsultOpen(!document.body.classList.contains('consult-open'));
+          break;
+        case 'close-consult':
+          setConsultOpen(false);
+          break;
         default:
           break;
       }
@@ -995,6 +1153,9 @@
     document.addEventListener('change', function(event) {
       if (event.target && event.target.matches('input, select, textarea')) {
         saveState();
+        if (event.target.id === 'precheckConfirm') {
+          updateStartButtonState();
+        }
       }
     });
 
@@ -1007,6 +1168,12 @@
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'hidden') {
         saveState();
+      }
+    });
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        setConsultOpen(false);
       }
     });
 
@@ -1138,21 +1305,199 @@
     // showResult: 最終結果
     // ==============================
     function showResult() {
-      let resultText = '';
+      const renderList = (items) => `
+        <ul>
+          ${items.map((item) => `<li>${item}</li>`).join('')}
+        </ul>
+      `;
+
+      const renderBlock = (title, body) => `
+        <div class="result-block">
+          <div class="result-block-title">${title}</div>
+          ${body}
+        </div>
+      `;
+
+      let heading = '';
+      let blocks = [];
+
       if (score >= 20) {
-        resultText = '異常なし';
+        heading = '20-30点：異常なし（目安）';
+        blocks = [
+          renderBlock(
+            '結果',
+            '<p>現時点では大きな心配は少ないようです（本チェックの目安）</p><p>このチェックは診断ではありませんが、今のところ「強い困りごと」が疑われる結果ではありません。</p>'
+          ),
+          renderBlock(
+            'こんな時は“点数に関わらず”相談を検討してください',
+            renderList([
+              '物忘れが急に増えた、以前より明らかに生活が回らない',
+              '火の消し忘れ、支払いのミス、道に迷うなど「危ない」と感じることがあった',
+              '本人（または家族）の不安が強い'
+            ])
+          ),
+          renderBlock(
+            '次にやること（おすすめ）',
+            renderList([
+              '変化に気づきやすくするため、少なくとも3か月に1回程度、本アプリでの定期チェックを続けましょう',
+              '最近の気になる出来事があれば、短くメモしておくと安心です（例：いつ・どこで・何があった）'
+            ])
+          ),
+          renderBlock(
+            'トップページの案内',
+            '<p>不安がある場合は、トップページの「医療機関に相談」「地域包括に相談」などのボタンから、相談方法を確認できます。</p>'
+          )
+        ];
       } else if (score >= 16) {
-        resultText = '認知症の疑いあり';
+        heading = '16-19点：認知症の疑いあり（目安）';
+        blocks = [
+          renderBlock(
+            '結果',
+            '<p>認知症の疑いがある可能性があります（本チェックの目安）</p><p>生活の中で“気になる変化”が出ている可能性があります。診断ではありませんが、早めに相談するほど安心につながります。</p>'
+          ),
+          renderBlock(
+            'この点数帯で起こりやすい困りごと（例）',
+            renderList([
+              '予定や約束を忘れる／同じことを何度も確認する',
+              '物の置き場所が分からなくなる回数が増える',
+              '支払い・料理・片付けなど、手順が多いことが面倒に感じる'
+            ])
+          ),
+          renderBlock(
+            '今すぐできること（負担を増やさないコツ）',
+            renderList([
+              '「探し物を減らす」ため、置き場所を固定する（鍵・財布・薬など）',
+              'メモやカレンダーを“見える場所1か所”にまとめる',
+              '1人で抱えず、家族や身近な人に「最近こんなことがある」と共有する'
+            ])
+          ),
+          renderBlock(
+            '次にやること（大切）',
+            renderList([
+              '点数が気になる場合は、トップページの「医療機関に相談」から相談の準備を進めましょう',
+              '受診までの間に状態の変化を見たい場合は、1-2か月後に当アプリで再チェックしてもOKです（※再チェックで安心しきるのではなく、困りごとが続くなら相談を優先してください）'
+            ])
+          )
+        ];
       } else if (score >= 11) {
-        resultText = '中程度の認知症';
+        heading = '11-15点：中程度の認知症（可能性）';
+        blocks = [
+          renderBlock(
+            '結果',
+            '<p>中程度の認知症が疑われる可能性があります（本チェックの目安）</p><p>日常生活に影響が出ている可能性があります。診断ではありませんが、早めの受診・支援につなぐ準備をおすすめします。</p>'
+          ),
+          renderBlock(
+            'この点数帯で起こりやすい困りごと（例）',
+            renderList([
+              '支払い・手続き・家計管理が難しくなる',
+              '薬を飲み忘れる、飲んだか分からなくなる',
+              '料理や片付けなどの段取りが続かない',
+              '外出や人付き合いが不安になり、避けがちになる'
+            ])
+          ),
+          renderBlock(
+            '今すぐできること（安全と負担軽減）',
+            renderList([
+              '薬・鍵・財布などは“置き場所固定＋見える化”',
+              '「やること」を紙に1つずつ書く（複数同時に抱えない）',
+              '重要な判断（高額な買い物・契約など）は、1人で決めない'
+            ])
+          ),
+          renderBlock(
+            '次にやること（最優先）',
+            renderList([
+              'トップページの「医療機関に相談」「地域包括に相談」から、早めに相談の準備を進めてください',
+              'この点数帯は「様子見の再チェック」より相談・受診が優先です（再チェックは、相談後の経過確認として行うのがおすすめ）'
+            ])
+          )
+        ];
       } else if (score >= 5) {
-        resultText = 'やや高度の認知症';
+        heading = '5-10点：やや高度の認知症（可能性）';
+        blocks = [
+          renderBlock(
+            '結果',
+            '<p>やや高度の認知症が疑われる可能性があります（本チェックの目安）</p><p>安全面への配慮が必要になる可能性があります。診断ではありませんが、早急に受診・相談し、生活支援の体制を整えることをおすすめします。</p>'
+          ),
+          renderBlock(
+            'この点数帯で起こりやすい困りごと（例）',
+            renderList([
+              '火の扱い、戸締まり、服薬、金銭などでミスが増える',
+              '外出先で不安が強くなる／道に迷う',
+              '不安・怒りっぽさ・落ち着かなさが出ることがある（体調や環境で変わります）'
+            ])
+          ),
+          renderBlock(
+            '今すぐできること（危険を減らす）',
+            renderList([
+              '火元・戸締まり・薬・財布など事故につながりやすい所を優先して見直す',
+              '1人で外出しない／連絡手段を持つなど、安全策を増やす',
+              'できるだけ早く、家族や身近な人に「今日の結果」を共有する'
+            ])
+          ),
+          renderBlock(
+            '次にやること（急ぎ）',
+            renderList([
+              'トップページの「医療機関に相談」「地域包括に相談」を優先して進めてください',
+              '運転をしている場合は、トップページの「運転の相談」も確認してください',
+              'この点数帯は再チェックより相談が優先です'
+            ])
+          )
+        ];
       } else {
-        resultText = '高度の認知症';
+        heading = '0-4点：高度の認知症（可能性）';
+        blocks = [
+          renderBlock(
+            '結果',
+            '<p>高度の認知症が疑われる可能性があります（本チェックの目安）</p><p>安全確保と支援体制が最優先です。診断ではありませんが、できるだけ早く医療機関へ相談し、必要な支援につなげてください。</p>'
+          ),
+          renderBlock(
+            'この点数帯で起こりやすい困りごと（例）',
+            renderList([
+              '日常生活の多くで、見守りや手助けが必要になる',
+              '体調の変化で混乱が強くなることがある',
+              '外出・服薬・火・金銭などで事故やトラブルの心配が増える'
+            ])
+          ),
+          renderBlock(
+            '今すぐできること（最優先）',
+            renderList([
+              '1人で抱えず、家族や身近な人にすぐ共有する',
+              '危険につながりやすい行動（火、運転、単独外出等）を控える',
+              'トップページの「医療機関に相談」「地域包括に相談」から、すぐに相談の準備を進める'
+            ])
+          ),
+          renderBlock(
+            '次にやること',
+            renderList([
+              'この点数帯は再チェックではなく相談・支援導入が最優先です'
+            ])
+          )
+        ];
       }
 
-      document.getElementById('scoreDisplay').innerText = `合計スコア: ${score} 点`;
-      document.getElementById('resultText').innerText = `結果: ${resultText}`;
+      const resultTextEl = document.getElementById('resultText');
+      if (resultTextEl) {
+        resultTextEl.innerHTML = `
+          <div class="result-heading">${heading}</div>
+          ${blocks.join('')}
+        `;
+      }
+
+      const audienceEl = document.getElementById('resultAudience');
+      if (audienceEl) {
+        audienceEl.innerHTML = `
+          <div class="result-footer-text">
+            ※本チェックは医学的な診断ではありません。認知症の診断を下せるのは医師のみです。<br />
+            体調（睡眠不足・疲労・ストレス）や薬、環境の変化などで結果が変動することがあります。<br />
+            不安がある場合は、トップページの各ボタンから相談方法を確認してください。
+          </div>
+        `;
+      }
+
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      if (scoreDisplay) {
+        scoreDisplay.innerText = `合計スコア: ${score} 点`;
+      }
 
       $('#modalResult').modal('show');
     }
@@ -1181,7 +1526,9 @@
         flash.innerHTML = '';
       }
       const startBtn = document.getElementById('startQuizBtn');
-      if (startBtn) startBtn.disabled = true;
+      const confirm = document.getElementById('precheckConfirm');
+      if (confirm) confirm.checked = false;
+      if (startBtn) updateStartButtonState();
 
       const calcArea = document.getElementById('calculatedAgeArea');
       if (calcArea) calcArea.style.display = 'none';
@@ -1212,3 +1559,5 @@
       resetQuiz();
       window.location.replace(window.location.origin + '/');
     }
+
+

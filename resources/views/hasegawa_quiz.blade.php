@@ -114,6 +114,31 @@
       margin-top: 1rem;
     }
 
+    .precheck-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      margin-top: 1.2rem;
+    }
+
+    .precheck-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--primary-strong);
+      margin-bottom: 0.6rem;
+    }
+
+    .precheck-text {
+      margin-bottom: 0.6rem;
+    }
+
+    .precheck-note {
+      font-size: 1.05rem;
+      color: var(--ink-muted);
+      margin-top: 0.4rem;
+    }
+
     .btn-start {
       display: block;
       margin: 1.2rem auto 0;
@@ -530,6 +555,52 @@
       margin-top: 0.3rem;
     }
 
+    .result-summary {
+      margin-top: 0.5rem;
+      font-size: 1.2rem;
+      color: var(--ink);
+    }
+
+    .result-audience-panel {
+      margin-top: 0.8rem;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      color: var(--ink);
+    }
+
+    .result-heading {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary-strong);
+    }
+
+    .result-block {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      margin-top: 0.8rem;
+    }
+
+    .result-block-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: var(--ink);
+    }
+
+    .result-block ul {
+      padding-left: 1.4rem;
+      margin-bottom: 0;
+    }
+
+    .result-footer-text {
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
     .age-note {
       margin-top: 0.2rem;
     }
@@ -575,8 +646,228 @@
       max-width: min(90vw, 520px);
     }
 
-    .back-notice .btn {
+    .back-notice-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
       margin-top: 0.6rem;
+    }
+
+    .back-notice-actions .btn {
+      margin-top: 0;
+    }
+
+    .back-notice-actions .btn-outline-danger {
+      color: #fff;
+      border-color: #fff;
+      background: transparent;
+    }
+
+    .back-notice-actions .btn-outline-danger:hover,
+    .back-notice-actions .btn-outline-danger:focus {
+      background: #fff;
+      color: #b24f6e;
+      border-color: #fff;
+    }
+
+    .consult-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 22px;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fff7fa 0%, #f6d7e2 100%);
+      border: 1px solid rgba(178, 79, 110, 0.25);
+      color: var(--primary-strong);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      box-shadow: 0 14px 26px rgba(178, 79, 110, 0.25);
+      z-index: 2250;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .consult-fab:hover,
+    .consult-fab:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 30px rgba(178, 79, 110, 0.28);
+    }
+
+    .consult-fab:active {
+      transform: translateY(1px) scale(0.96);
+    }
+
+    .consult-fab.is-dragging {
+      cursor: grabbing;
+    }
+
+    .consult-fab-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .consult-fab-icon {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .consult-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 42, 43, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 2280;
+    }
+
+    .consult-sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-height: 80vh;
+      background: rgba(255, 247, 250, 0.92);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      border-top-left-radius: 22px;
+      border-top-right-radius: 22px;
+      box-shadow: 0 -18px 32px rgba(20, 30, 40, 0.18);
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+      z-index: 2290;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .consult-open .consult-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .consult-open .consult-sheet {
+      transform: translateY(0);
+    }
+
+    .consult-open {
+      overflow: hidden;
+    }
+
+    .consult-sheet-header {
+      padding: 0.8rem 1.2rem 0.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .consult-sheet-handle {
+      width: 48px;
+      height: 5px;
+      background: rgba(178, 79, 110, 0.35);
+      border-radius: 999px;
+      margin: 0 auto 0.6rem;
+    }
+
+    .consult-sheet-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-strong);
+    }
+
+    .consult-sheet-close {
+      position: absolute;
+      right: 12px;
+      top: 10px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.2rem 0.5rem;
+      font-size: 1.1rem;
+      color: var(--primary-strong);
+    }
+
+    .consult-sheet-body {
+      padding: 0.2rem 1.2rem 1.3rem;
+      overflow-y: auto;
+    }
+
+    .consult-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      margin-bottom: 0.8rem;
+      overflow: hidden;
+    }
+
+    .consult-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 0.85rem 1rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
+    .consult-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .consult-item[open] summary {
+      background: var(--panel-accent);
+      color: var(--primary-strong);
+    }
+
+    .consult-item-body {
+      padding: 0.8rem 1rem 1rem;
+      font-size: 1.05rem;
+      color: var(--ink);
+      line-height: 1.7;
+    }
+
+    .consult-item-body h6 {
+      font-weight: 700;
+      margin-top: 0.7rem;
+    }
+
+    .consult-item-body ul {
+      padding-left: 1.3rem;
+    }
+
+    .theme-dark .consult-fab {
+      background: linear-gradient(135deg, #3a252d 0%, #5c3a47 100%);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 16px 26px rgba(0, 0, 0, 0.35);
+    }
+
+    .theme-dark .consult-sheet {
+      background: rgba(58, 37, 45, 0.92);
+      border-color: var(--border);
+    }
+
+    .theme-dark .consult-item {
+      background: #3a252d;
+      border-color: var(--border);
+    }
+
+    .theme-dark .consult-item summary {
+      color: var(--ink);
+    }
+
+    .theme-dark .consult-item[open] summary {
+      background: #4a2f3a;
+      color: var(--ink);
     }
 
     .loading-overlay {
@@ -768,6 +1059,19 @@
       color: var(--ink);
     }
 
+    @media (max-width: 480px) {
+      .consult-fab {
+        width: 68px;
+        height: 68px;
+        right: 14px;
+        bottom: 18px;
+      }
+
+      .consult-fab-label {
+        font-size: 0.7rem;
+      }
+    }
+
     .theme-dark .word-set-option,
     .theme-dark .q7-score-row,
     .theme-dark .q8-review,
@@ -791,6 +1095,12 @@
     .theme-dark .recall-words,
     .theme-dark .q7-word-label,
     .theme-dark .q8-shown-name {
+      color: var(--ink);
+    }
+
+    .theme-dark .result-audience-panel {
+      background: #3a252d;
+      border-color: var(--border);
       color: var(--ink);
     }
 
@@ -838,8 +1148,9 @@
   </div>
   <div id="backNotice" class="back-notice" role="status" aria-live="polite">
     ブラウザの戻る操作で設問が閉じました。続きに戻る場合は下のボタンを押してください。
-    <div>
+    <div class="back-notice-actions">
       <button type="button" class="btn btn-light btn-sm" data-action="resume-modal">設問に戻る</button>
+      <button type="button" class="btn btn-outline-danger btn-sm" data-action="exit-app">アプリを終了する</button>
     </div>
   </div>
   <div id="globalLoading" class="loading-overlay" aria-live="polite" aria-busy="true">
@@ -849,6 +1160,185 @@
   <div class="theme-toggle">
     <button type="button" class="btn btn-outline-primary" id="themeToggleBtn">ダークモード</button>
   </div>
+  <button
+    type="button"
+    class="consult-fab"
+    id="consultFab"
+    data-action="toggle-consult"
+    aria-controls="consultSheet"
+    aria-expanded="false"
+    aria-label="各種相談を開く">
+    <span class="consult-fab-label">各種相談</span>
+    <span class="consult-fab-icon"><i class="fas fa-hands-helping" aria-hidden="true"></i></span>
+  </button>
+  <div id="consultBackdrop" class="consult-backdrop" data-action="close-consult" aria-hidden="true"></div>
+  <section id="consultSheet" class="consult-sheet" role="dialog" aria-modal="true" aria-label="各種相談">
+    <div class="consult-sheet-header">
+      <div class="consult-sheet-handle" aria-hidden="true"></div>
+      <div class="consult-sheet-title">各種相談</div>
+      <button type="button" class="consult-sheet-close" data-action="close-consult" aria-label="閉じる">×</button>
+    </div>
+    <div class="consult-sheet-body">
+      <details class="consult-item">
+        <summary>🏥 医療機関に相談</summary>
+        <div class="consult-item-body">
+          <h6>はじめに</h6>
+          <p>物忘れや段取りの変化は、年齢だけでなく疲れ・睡眠不足・ストレス・体調などでも起こります。<br />
+            このアプリの結果は「診断」ではありませんが、早めに相談しておくと安心につながることがあります。</p>
+          <h6>相談の進め方（かんたん3ステップ）</h6>
+          <p>① 受診の予約（または受付確認）<br />
+            病院へ電話して「もの忘れ（認知機能）の相談で受診したい」ことを伝え、<br />
+            ・予約が必要か<br />
+            ・何を持参するか<br />
+            ・家族の同席が必要か<br />
+            を確認します。</p>
+          <p>② 受診メモを準備（短くてOK）<br />
+            受診のときに伝えたいことを、箇条書きでメモしておくと安心です。<br />
+            （例：いつ頃から／どんな場面で／どれくらいの頻度／困っていること）</p>
+          <p>③ 受診して相談<br />
+            医師が話を聞き、必要に応じて検査や今後の過ごし方を一緒に考えてくれます。</p>
+          <h6>電話でそのまま使えるテンプレ（本人）</h6>
+          <p>「お電話失礼します。最近、物忘れや段取りのしにくさが増えて少し心配です。<br />
+            もの忘れ（認知機能）の相談で受診したいのですが、予約は必要でしょうか。<br />
+            持ち物や事前に準備しておくことがあれば教えてください。」</p>
+          <h6>電話でそのまま使えるテンプレ（家族）</h6>
+          <p>「家族のことで相談です。物忘れや生活の困りごとが増えてきて心配しています。<br />
+            受診の流れ（予約の要否、持ち物、同席の必要など）を教えてください。」</p>
+          <h6>持っていくと安心なもの（最低限）</h6>
+          <ul>
+            <li>保険証（医療証があれば一緒に）</li>
+            <li>お薬手帳（または薬が分かるもの）</li>
+            <li>受診メモ</li>
+          </ul>
+          <h6>受診メモ</h6>
+          <ul>
+            <li>いつ頃から：＿＿＿＿（例：3か月前から）</li>
+            <li>困る場面：＿＿＿＿（例：支払い／料理／予定／道順）</li>
+            <li>頻度：＿＿＿＿（例：週に数回）</li>
+            <li>生活で困っていること：＿＿＿＿</li>
+            <li>心配な出来事：＿＿＿＿（例：火、薬、外出、詐欺など）</li>
+          </ul>
+          <h6>アプリの点数が低いほど（目安）</h6>
+          <p>点数が低いほど、「再チェック」よりも“早めの相談”が安心につながりやすい目安になります。<br />
+            迷うときは、まずは相談の準備だけでもOKです。</p>
+        </div>
+      </details>
+
+      <details class="consult-item">
+        <summary>🏢 地域包括に相談</summary>
+        <div class="consult-item-body">
+          <h6>地域包括支援センターって、どんな所？</h6>
+          <p>地域包括支援センターは、本人や家族のための総合相談窓口です。<br />
+            介護保険だけでなく、<br />
+            「認知症かも」「生活が不安」「家族だけでは大変」<br />
+            といった悩みを、整理して次の一歩につなげるための相談ができます。</p>
+          <h6>探し方</h6>
+          <p>市町村サイトで「地域包括支援センター 電話」を検索してください。</p>
+          <h6>相談の進め方（かんたん3ステップ）</h6>
+          <p>① 電話で相談（最短）<br />
+            「物忘れが心配」「生活の困りごとがある」と伝えるだけで大丈夫です。</p>
+          <p>② 状況を一緒に整理<br />
+            困っていること（薬／火／金銭／外出／入浴など）を一緒に整理します。</p>
+          <p>③ 必要な支援へつなぐ<br />
+            受診先の相談、介護保険、利用できる支援・見守りなど、状況に合わせて案内されます。</p>
+          <h6>電話でそのまま使えるテンプレ</h6>
+          <p>「お電話失礼します。本人（家族）の物忘れが少し心配で、生活でも困りごとが出てきました。<br />
+            受診先の相談や、介護保険のこと、今すぐできる支援について相談したいです。<br />
+            担当の方につないでいただけますか？」</p>
+          <h6>相談前にメモしておくとスムーズ（短くてOK）</h6>
+          <ul>
+            <li>本人：年齢／住まい（独居・同居）</li>
+            <li>困りごと：＿＿＿＿（例：服薬、火、金銭、外出、入浴）</li>
+            <li>受診状況：未受診／受診済み（かかりつけ医：あり・なし）</li>
+            <li>家族の状況：支援できる頻度（毎日／週末／遠方など）</li>
+          </ul>
+          <h6>こんな時に特におすすめ</h6>
+          <ul>
+            <li>受診先に迷う</li>
+            <li>生活の不安（薬・火・外出など）が先に来ている</li>
+            <li>介護保険の申請が必要か分からない</li>
+            <li>家族の負担が大きくなっている</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="consult-item">
+        <summary>🚗 運転の相談</summary>
+        <div class="consult-item-body">
+          <h6>はじめに（責めない・安全を大切に）</h6>
+          <p>運転の話題は、とても大切で、同時に言いづらいことでもあります。<br />
+            ここでは「やめる／続ける」を決めつけるのではなく、<br />
+            <strong>安全のために“相談という形で整理する”</strong>ことを目的にしています。</p>
+          <h6>スコアに応じた目安（表示ルール：アプリ実装向け）</h6>
+          <p>※点数は本アプリのチェック結果（目安）で、診断ではありません。</p>
+          <ul>
+            <li>20-30点：運転に不安がある場合は、家族や医療機関に相談</li>
+            <li>16-19点：不安があれば早めに見直し、相談窓口の利用を検討</li>
+            <li>11-15点：安全のため運転を慎重に見直し（相談窓口へ）</li>
+            <li>5-10点／0-4点：運転中止を含めて強く検討＋相談窓口・自主返納制度の案内</li>
+          </ul>
+          <h6>相談先（電話）</h6>
+          <p>安全運転に不安がある場合、都道府県警察の<strong>安全運転相談窓口（#8080）</strong>に相談できます。</p>
+          <h6>電話でそのまま使えるテンプレ（本人）</h6>
+          <p>「運転に少し不安が出てきました。安全のために、運転の見直しについて相談したいです。<br />
+            相談先や手続き、自主返納について教えてください。」</p>
+          <h6>電話でそのまま使えるテンプレ（家族）</h6>
+          <p>「家族の運転が心配です。本人の安全のために、運転の見直しや相談先について教えてください。<br />
+            自主返納の手続きや、必要な準備も知りたいです。」</p>
+          <h6>自主返納について（やさしい補足）</h6>
+          <p>免許は自主返納を検討でき、返納後に運転経歴証明書を申請できる場合があります。<br />
+            「加害者にならないためにも」、迷った時点で早めに相談することが安全につながります。</p>
+          <h6>返納を考えるときの大事なポイント（不安を減らす）</h6>
+          <p>返納は「終わり」ではなく、移動の代わりを一緒に考えることが大切です。</p>
+          <ul>
+            <li>通院・買い物：家族送迎、バス、タクシー、配達サービス等</li>
+            <li>本人の気持ち：否定せず「安全のために一緒に相談しよう」と伝える</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="consult-item">
+        <summary>📄 介護保険の流れ</summary>
+        <div class="consult-item-body">
+          <h6>はじめに</h6>
+          <p>介護保険は「大変そう」と感じやすいですが、流れが分かれば、意外と一歩ずつ進められます。<br />
+            困りごとが増えてきたときに、生活を楽にするための仕組みとして使えます。</p>
+          <h6>申請はどこにする？</h6>
+          <ul>
+            <li>住んでいる市区町村の介護保険担当窓口（介護保険課など）</li>
+            <li>迷う場合は、まず地域包括支援センターに相談してもOKです（案内してもらえます）</li>
+          </ul>
+          <h6>申請できる人</h6>
+          <ul>
+            <li>本人</li>
+            <li>家族（相談しながら進められます。早めに動くほど安心です）</li>
+          </ul>
+          <h6>全体の流れ（これだけ覚えればOK）</h6>
+          <p>① 申請（市区町村の介護保険担当窓口へ）<br />
+            ② 認定調査（調査員が心身の状態を確認）<br />
+            ③ 主治医意見書（市区町村から医師へ依頼）<br />
+            ④ 審査・認定（要支援／要介護などが決まる）<br />
+            ⑤ ケアプラン作成（利用するサービスの計画）<br />
+            ⑥ サービス利用開始</p>
+          <h6>市役所（介護保険課）に電話するテンプレ</h6>
+          <p>「介護保険の申請について確認したくお電話しました。<br />
+            家族（本人）の生活の困りごとが増えてきたため、要介護認定の申請を検討しています。<br />
+            申請はどの窓口で、何を持参すればよいでしょうか。手続きの流れも教えてください。」</p>
+          <h6>申請前にメモしておくと安心（短くてOK）</h6>
+          <ul>
+            <li>本人の情報：住所・保険証</li>
+            <li>困りごと：＿＿＿＿（例：転倒、服薬、火、金銭、外出、入浴）</li>
+            <li>家族の支援状況：＿＿＿＿（例：同居、週末のみ、遠方）</li>
+            <li>受診状況：＿＿＿＿（診断の有無は後からでもOK）</li>
+          </ul>
+          <h6>受け入れやすい伝え方（家族向けの一言）</h6>
+          <p>「できないことが増えた」より、<br />
+            「安全のために、生活が回る仕組みを一緒に作りたい」<br />
+            と伝える方が、本人も受け入れやすいことが多いです。</p>
+        </div>
+      </details>
+    </div>
+  </section>
   <div id="petalLayer" aria-hidden="true"></div>
   <div class="title-section">
     <h2>心桜 認知症チェック</h2>
@@ -869,6 +1359,19 @@
       検査が終わったら、「お疲れ様でした。どうですか、疲れましたか？」と
       声をかけ、患者様が安心できるように努めてください。
     </p>
+
+    <div class="precheck-panel">
+      <div class="precheck-title">チェック開始前のご案内</div>
+      <p class="precheck-text">
+        ※本チェックは医学的な診断ではありません。認知症の診断を下せるのは医師のみです。<br />
+        体調（睡眠不足・疲労・ストレス）や薬、環境の変化などで結果が変動することがあります。
+      </p>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="precheckConfirm" name="precheckConfirm">
+        <label class="form-check-label" for="precheckConfirm">上記の内容を理解しました</label>
+      </div>
+      <div class="precheck-note">※チェックを入れると検査を開始できます。</div>
+    </div>
 
     <!-- 生年月日入力フォーム (プルダウン: 西暦年 + 月 + 日) -->
     <div class="form-inline mb-3">
@@ -1536,7 +2039,7 @@
             <option value="5" {{ old('vegetableSelect') == '5' ? 'selected' : '' }}>10個以上</option>
           </select>
           <div class="mt-3">
-            <div class="helper-note">※野菜名を最大10個まで記録できます（フリック入力対応）。</div>
+            <div class="helper-note">※野菜名を最大10個まで記録できます。必要に応じてメモ等でご活用ください。必ず使用しなくても問題ありません（フリック入力対応）。</div>
             <div class="vegetable-grid">
               <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="1つ目" name="vegetables[0]" value="{{ old('vegetables.0') }}">
               <input type="text" class="form-control vegetable-input" inputmode="kana" maxlength="20" placeholder="2つ目" name="vegetables[1]" value="{{ old('vegetables.1') }}">
@@ -1591,7 +2094,8 @@
         </div>
         <div class="modal-body">
           <h4 id="scoreDisplay" class="text-center"></h4>
-          <p id="resultText" class="text-center font-weight-bold"></p>
+          <div id="resultText" class="result-summary"></div>
+          <div id="resultAudience" class="result-audience-panel"></div>
         </div>
         <div class="modal-footer">
           <a href="{{ url('/') }}" class="btn btn-outline-primary" id="returnTopLink">トップへ戻る</a>
