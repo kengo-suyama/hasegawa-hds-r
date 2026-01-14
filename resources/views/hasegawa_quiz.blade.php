@@ -1060,6 +1060,113 @@
     }
 
     @media (max-width: 480px) {
+      .title-section h2 {
+        font-size: 1.4rem;
+        margin-top: 1.2rem;
+        margin-bottom: 1rem;
+      }
+
+      .instructions {
+        width: calc(100vw - 24px);
+        max-width: 100%;
+        padding: 1rem 1.1rem;
+        margin: 0 auto 1.2rem;
+      }
+
+      .instructions h5 {
+        font-size: 1.125rem;
+        margin-top: 0.9rem;
+      }
+
+      .precheck-panel {
+        padding: 0.85rem 0.95rem;
+      }
+
+      .precheck-title {
+        font-size: 1.1rem;
+      }
+
+      .precheck-text,
+      .precheck-note,
+      .helper-note,
+      .form-check-label,
+      .age-note {
+        font-size: 0.95rem;
+      }
+
+      .form-inline {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .form-inline label {
+        margin-right: 0;
+        margin-bottom: 0.35rem;
+      }
+
+      .form-inline .form-control {
+        width: 100% !important;
+      }
+
+      #introSection .d-flex {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #introSection .d-flex .btn {
+        width: 100%;
+      }
+
+      .btn,
+      .form-control,
+      input,
+      select,
+      button {
+        font-size: 16px;
+      }
+
+      .btn {
+        min-height: 44px;
+      }
+
+      .btn-start {
+        width: 100%;
+      }
+
+      .question {
+        font-size: 1.3rem;
+        padding: 0.7rem 0.9rem;
+      }
+
+      .q8-current {
+        padding: 0.75rem;
+        gap: 0.45rem;
+      }
+
+      .q8-current-name {
+        font-size: 1.35rem;
+        margin-bottom: 0.3rem;
+      }
+
+      .q8-current-image {
+        width: 100%;
+        max-height: 60vh;
+      }
+
+      .q8-progress {
+        font-size: 0.95rem;
+      }
+
+      .modal-title {
+        font-size: 1.2rem;
+      }
+
+      .advice,
+      .extra-info,
+      .result-footer-text {
+        font-size: 0.95rem;
+      }
+
       .consult-fab {
         width: 68px;
         height: 68px;

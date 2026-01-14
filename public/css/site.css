@@ -270,3 +270,45 @@ body > :not(#petalLayer):not(.network-status):not(.loading-overlay):not(.theme-t
   #q8CountdownMessage{ font-size:1.1rem; }
 }
 
+@media (max-width: 480px) {
+  .container {
+    max-width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .title-wrapper {
+    margin-top: 2.2rem;
+  }
+
+  .title-main {
+    font-size: 2.2rem;
+  }
+
+  .title-sub {
+    font-size: 1.35rem;
+  }
+
+  main p {
+    font-size: 1.05rem;
+    margin-top: 1.6rem;
+  }
+
+  .img-custom {
+    width: 85%;
+    margin-top: 1.8rem;
+  }
+
+  .btn-custom {
+    width: 100%;
+    min-height: 44px;
+    font-size: 1.15rem;
+    padding: 0.75rem 1rem;
+  }
+
+  input,
+  select,
+  button {
+    font-size: 16px;
+  }
+}
