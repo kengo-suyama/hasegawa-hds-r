@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>心桜 認知症チェック(改良版)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
   <!-- Bootstrap & Font Awesome -->
   <link
     rel="stylesheet"
@@ -139,6 +140,49 @@
       margin-top: 0.4rem;
     }
 
+    .precheck-confirm {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 12px;
+      border: 2px dashed var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 10px 22px rgba(178, 79, 110, 0.12);
+    }
+
+    .precheck-confirm.is-attention {
+      animation: precheckGlow 1.6s ease-in-out infinite;
+    }
+
+    .precheck-confirm.is-checked {
+      border-style: solid;
+      background: var(--panel);
+    }
+
+    .precheck-label {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary-strong);
+      margin-bottom: 0;
+    }
+
+    .precheck-confirm .form-check-input {
+      margin-top: 0;
+      transform: scale(1.4);
+      box-shadow: 0 0 0 3px rgba(178, 79, 110, 0.22);
+      border-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .precheck-confirm .form-check-input:checked {
+      box-shadow: 0 0 0 3px rgba(178, 79, 110, 0.32);
+    }
+
+    .precheck-confirm .form-check-label {
+      cursor: pointer;
+    }
+
     .btn-start {
       display: block;
       margin: 1.2rem auto 0;
@@ -146,6 +190,17 @@
       font-weight: 700;
       padding: 0.8rem 1.6rem;
       border-radius: 14px;
+    }
+
+    .btn-calc-age {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      box-shadow: 0 10px 22px rgba(178, 79, 110, 0.25);
+      transform-origin: center;
+    }
+
+    .btn-calc-age.is-attention {
+      animation: agePulse 1.2s ease-in-out infinite;
     }
 
     .form-inline {
@@ -673,10 +728,15 @@
 
     .consult-fab {
       position: fixed;
+      --fab-size: 96px;
+      --fab-shadow: 0 16px 28px rgba(178, 79, 110, 0.3);
+      --fab-shadow-strong: 0 24px 38px rgba(178, 79, 110, 0.38);
       right: 18px;
-      bottom: 22px;
-      width: 76px;
-      height: 76px;
+      top: calc(50% - (var(--fab-size) / 2));
+      bottom: auto;
+      left: auto;
+      width: var(--fab-size);
+      height: var(--fab-size);
       border-radius: 50%;
       background: linear-gradient(135deg, #fff7fa 0%, #f6d7e2 100%);
       border: 1px solid rgba(178, 79, 110, 0.25);
@@ -686,35 +746,41 @@
       align-items: center;
       justify-content: center;
       gap: 0.15rem;
-      box-shadow: 0 14px 26px rgba(178, 79, 110, 0.25);
+      box-shadow: var(--fab-shadow);
       z-index: 2250;
       transition: transform 0.18s ease, box-shadow 0.18s ease;
+      animation: consultPulse 1.6s ease-in-out infinite;
+      transform-origin: center;
       cursor: grab;
       touch-action: none;
     }
 
     .consult-fab:hover,
     .consult-fab:focus {
-      transform: translateY(-2px);
-      box-shadow: 0 18px 30px rgba(178, 79, 110, 0.28);
+      animation: none;
+      transform: scale(1.05);
+      box-shadow: var(--fab-shadow-strong);
     }
 
     .consult-fab:active {
-      transform: translateY(1px) scale(0.96);
+      animation: none;
+      transform: scale(0.97);
     }
 
     .consult-fab.is-dragging {
       cursor: grabbing;
+      animation: none;
+      transform: scale(1);
     }
 
     .consult-fab-label {
-      font-size: 0.75rem;
+      font-size: 0.82rem;
       font-weight: 700;
       letter-spacing: 0.04em;
     }
 
     .consult-fab-icon {
-      font-size: 1.2rem;
+      font-size: 1.35rem;
       line-height: 1;
     }
 
@@ -848,7 +914,8 @@
       background: linear-gradient(135deg, #3a252d 0%, #5c3a47 100%);
       color: #fff;
       border-color: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 16px 26px rgba(0, 0, 0, 0.35);
+      --fab-shadow: 0 18px 30px rgba(0, 0, 0, 0.45);
+      --fab-shadow-strong: 0 26px 38px rgba(0, 0, 0, 0.58);
     }
 
     .theme-dark .consult-sheet {
@@ -907,6 +974,50 @@
     @keyframes spin {
       to {
         transform: rotate(360deg);
+      }
+    }
+
+    @keyframes precheckGlow {
+      0%,
+      100% {
+        box-shadow: 0 10px 22px rgba(178, 79, 110, 0.12);
+        border-color: var(--accent);
+      }
+      50% {
+        box-shadow: 0 16px 30px rgba(178, 79, 110, 0.22);
+        border-color: var(--primary);
+      }
+    }
+
+    @keyframes agePulse {
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 10px 22px rgba(178, 79, 110, 0.25);
+      }
+      50% {
+        transform: scale(1.06);
+        box-shadow: 0 16px 30px rgba(178, 79, 110, 0.35);
+      }
+    }
+
+    @keyframes consultPulse {
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: var(--fab-shadow);
+      }
+      50% {
+        transform: scale(1.08);
+        box-shadow: var(--fab-shadow-strong);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .precheck-confirm.is-attention,
+      .btn-calc-age.is-attention,
+      .consult-fab {
+        animation: none;
       }
     }
 
@@ -1168,14 +1279,13 @@
       }
 
       .consult-fab {
-        width: 68px;
-        height: 68px;
-        right: 14px;
-        bottom: 18px;
+        --fab-size: 84px;
+        right: 12px;
+        top: calc(50% - (var(--fab-size) / 2));
       }
 
       .consult-fab-label {
-        font-size: 0.7rem;
+        font-size: 0.72rem;
       }
     }
 
@@ -1211,7 +1321,7 @@
       color: var(--ink);
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 767px) {
       body {
         font-size: 1.35rem;
       }
@@ -1246,6 +1356,250 @@
         padding: 1.1rem;
       }
     }
+
+    @media (max-width: 1023px) {
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .modal-content {
+        overflow-x: hidden;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .modal-body {
+        padding: 1.1rem 1rem calc(1.6rem + env(safe-area-inset-bottom));
+        overflow-x: hidden;
+      }
+
+      .modal-footer {
+        padding-bottom: calc(0.85rem + env(safe-area-inset-bottom));
+      }
+
+      .btn,
+      .btn-block {
+        min-height: 56px;
+        font-size: 1.15rem;
+        padding: 0.85rem 1rem;
+      }
+
+      .form-control {
+        height: 56px;
+        font-size: 1.05rem;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
+
+      .instructions {
+        width: calc(100vw - 24px);
+        max-width: 100%;
+        margin: 0 auto 1.2rem;
+      }
+
+      .precheck-text,
+      .precheck-note,
+      .helper-note,
+      .form-check-label,
+      .age-note,
+      .advice,
+      .extra-info,
+      .result-footer-text,
+      .q8-progress {
+        font-size: 1rem;
+      }
+
+      .modal-title {
+        font-size: 1.3rem;
+      }
+
+      #introSection .d-flex {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #introSection .d-flex .btn {
+        width: 100%;
+      }
+
+      .form-row {
+        flex-direction: column;
+      }
+
+      .form-row > .form-group {
+        max-width: 100%;
+      }
+
+      .q7-score-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .q7-score-select {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .q8-current-image {
+        width: 100%;
+        max-height: 60vh;
+      }
+
+      .q8-shown-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .q8-shown-card img {
+        height: 120px;
+      }
+
+      #startQuizBtn,
+      #q8NextBtn,
+      button[data-action="submit-q7"],
+      button[data-action="q8-submit"] {
+        position: sticky;
+        bottom: calc(0.5rem + env(safe-area-inset-bottom));
+        z-index: 5;
+      }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .modal-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        gap: 1.1rem 1.4rem;
+        align-items: start;
+      }
+
+      .modal-body > * {
+        min-width: 0;
+      }
+
+      #question8Step1,
+      #question8Step2 {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        gap: 1.1rem 1.4rem;
+      }
+
+      #question8Step1 .question,
+      #question8Step2 .question,
+      #question8Step2 p,
+      #question8Step2 .advice,
+      #question8Step2 .extra-info {
+        grid-column: 1;
+      }
+
+      #question8Step1 .q8-current,
+      #question8Step1 .q8-controls,
+      #question8Step2 .form-control,
+      #question8Step2 .btn {
+        grid-column: 2;
+      }
+
+      .modal-body > .question,
+      .modal-body > .advice,
+      .modal-body > .extra-info,
+      .modal-body > .helper-note,
+      .modal-body > .recall-panel,
+      .modal-body > .word-set-panel,
+      .modal-body > .q3-hint,
+      .modal-body > .q3-countdown,
+      .modal-body > .result-summary,
+      .modal-body > .result-audience-panel,
+      .modal-body > .result-block,
+      .modal-body > #q1SkipNotice,
+      .modal-body > #q2CorrectDate,
+      .modal-body > p {
+        grid-column: 1;
+      }
+
+      .modal-body > .btn,
+      .modal-body > .form-row,
+      .modal-body > .form-control,
+      .modal-body > select.form-control,
+      .modal-body > .q7-score-grid,
+      .modal-body > .q8-current,
+      .modal-body > .q8-controls,
+      .modal-body > .q8-review,
+      .modal-body > .vegetable-grid {
+        grid-column: 2;
+      }
+
+      .q7-score-select,
+      .modal-body > .form-row,
+      .modal-body > .form-control,
+      .modal-body > select.form-control {
+        width: 100%;
+      }
+
+      .btn,
+      .form-control {
+        min-height: 52px;
+      }
+
+      .q8-current-image {
+        max-height: 320px;
+      }
+    }
+
+    /* ==========================
+       Mobile (<= 767px) 強化
+       ========================== */
+    @media (max-width: 767px) {
+      /* 横スクロール抑止 */
+      html,
+      body {
+        overflow-x: hidden;
+      }
+
+      /* スマホのベース文字を読みやすく */
+      body {
+        font-size: 1.1rem;
+        line-height: 1.75;
+      }
+
+      /* iOS/Androidでフォーム入力時に勝手にズームしない */
+      input,
+      select,
+      textarea,
+      button {
+        font-size: 16px !important;
+      }
+
+      /* ボタンを「押しやすいサイズ」に統一（Bootstrapの.btn全般に効く） */
+      .btn,
+      button,
+      input[type="button"],
+      input[type="submit"] {
+        width: 100%;
+        min-height: 52px;
+        font-size: 1.15rem;
+        padding: 0.85rem 1.1rem;
+      }
+
+      /* ボタンが横並びになりがちな箇所を縦積みに（崩れ防止） */
+      .d-flex {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .d-flex > .btn {
+        flex: 1 1 100%;
+      }
+
+      /* 説明文/注意文を読みやすく */
+      .small,
+      small {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 
@@ -1274,12 +1628,13 @@
     data-action="toggle-consult"
     aria-controls="consultSheet"
     aria-expanded="false"
-    aria-label="各種相談を開く">
+    aria-label="各種相談を開く"
+    hidden>
     <span class="consult-fab-label">各種相談</span>
     <span class="consult-fab-icon"><i class="fas fa-hands-helping" aria-hidden="true"></i></span>
   </button>
-  <div id="consultBackdrop" class="consult-backdrop" data-action="close-consult" aria-hidden="true"></div>
-  <section id="consultSheet" class="consult-sheet" role="dialog" aria-modal="true" aria-label="各種相談">
+  <div id="consultBackdrop" class="consult-backdrop" data-action="close-consult" aria-hidden="true" hidden></div>
+  <section id="consultSheet" class="consult-sheet" role="dialog" aria-modal="true" aria-label="各種相談" hidden>
     <div class="consult-sheet-header">
       <div class="consult-sheet-handle" aria-hidden="true"></div>
       <div class="consult-sheet-title">各種相談</div>
@@ -1473,11 +1828,11 @@
         ※本チェックは医学的な診断ではありません。認知症の診断を下せるのは医師のみです。<br />
         体調（睡眠不足・疲労・ストレス）や薬、環境の変化などで結果が変動することがあります。
       </p>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="precheckConfirm" name="precheckConfirm">
-        <label class="form-check-label" for="precheckConfirm">上記の内容を理解しました</label>
+      <div class="form-check precheck-confirm" id="precheckConfirmWrap" data-role="precheck-confirm">
+        <input class="form-check-input" type="checkbox" id="precheckConfirm" name="precheckConfirm" aria-describedby="precheckNote">
+        <label class="form-check-label precheck-label" for="precheckConfirm">上記の内容を理解しました</label>
       </div>
-      <div class="precheck-note">※チェックを入れると検査を開始できます。</div>
+      <div class="precheck-note" id="precheckNote">※チェックを入れると検査を開始できます。</div>
     </div>
 
     <!-- 生年月日入力フォーム (プルダウン: 西暦年 + 月 + 日) -->
@@ -1501,7 +1856,7 @@
     </div>
     <div class="helper-note mt-2">※本検査は原則18歳（成人）以上を対象としています。18歳未満の場合は実施可否をご判断ください。</div>
     <div class="d-flex mb-2" style="gap:8px;">
-      <button class="btn btn-primary" data-action="calculate-age">年齢を計算</button>
+      <button class="btn btn-primary btn-calc-age" data-action="calculate-age">年齢を計算</button>
       <button class="btn btn-warning" id="birthUnknownBtn" data-action="mark-birth-unknown">生年月日が不明瞭な場合はこちら</button>
     </div>
 
@@ -1881,7 +2236,7 @@
         </div>
         <div class="modal-body">
           <div class="question" id="q6Question">
-            私がこれから言う数字を逆から言ってください。（6・8・2、3・5・2・9）
+            私がこれから言う数字を逆から言ってください。「6・8・2」（最初は3桁逆唱）出来たら「3・5・2・9」の4桁逆唱に挑戦。
           </div>
           <button
             class="btn btn-outline-primary btn-block mb-2"
@@ -2219,13 +2574,3 @@
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
