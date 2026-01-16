@@ -37,6 +37,124 @@
     });
   }
 
+  function initHomeConsult() {
+    const fab = document.getElementById('homeConsultFab');
+    const panel = document.getElementById('homeConsultPanel');
+    if (!fab || !panel) return;
+
+    const closePanel = () => {
+      panel.hidden = true;
+      fab.setAttribute('aria-expanded', 'false');
+    };
+
+    const openPanel = () => {
+      panel.hidden = false;
+      fab.setAttribute('aria-expanded', 'true');
+    };
+
+    fab.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (fab.dataset.dragging === 'true') return;
+      if (panel.hidden) {
+        openPanel();
+      } else {
+        closePanel();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (panel.hidden) return;
+      if (panel.contains(event.target) || fab.contains(event.target)) return;
+      closePanel();
+    });
+
+    initHomeConsultDrag(fab);
+  }
+
+  function clampHomeConsultFab(fab, margin = 12) {
+    const rect = fab.getBoundingClientRect();
+    const maxLeft = window.innerWidth - rect.width - margin;
+    const maxTop = window.innerHeight - rect.height - margin;
+    const nextLeft = Math.min(maxLeft, Math.max(margin, rect.left));
+    const nextTop = Math.min(maxTop, Math.max(margin, rect.top));
+    if (rect.left !== nextLeft || rect.top !== nextTop) {
+      fab.style.left = `${nextLeft}px`;
+      fab.style.top = `${nextTop}px`;
+      fab.style.right = 'auto';
+      fab.style.bottom = 'auto';
+    }
+  }
+
+  function initHomeConsultDrag(fab) {
+    let dragState = null;
+
+    fab.addEventListener('pointerdown', (event) => {
+      if (event.button && event.button !== 0) return;
+      const rect = fab.getBoundingClientRect();
+      dragState = {
+        startX: event.clientX,
+        startY: event.clientY,
+        startLeft: rect.left,
+        startTop: rect.top,
+        width: rect.width,
+        height: rect.height,
+        moved: false
+      };
+      fab.dataset.dragging = 'false';
+      fab.classList.add('is-dragging');
+      fab.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+
+    fab.addEventListener('pointermove', (event) => {
+      if (!dragState) return;
+      const dx = event.clientX - dragState.startX;
+      const dy = event.clientY - dragState.startY;
+      if (!dragState.moved && Math.hypot(dx, dy) > 6) {
+        dragState.moved = true;
+        fab.dataset.dragging = 'true';
+      }
+      if (!dragState.moved) return;
+      const margin = 12;
+      const maxLeft = window.innerWidth - dragState.width - margin;
+      const maxTop = window.innerHeight - dragState.height - margin;
+      const nextLeft = Math.min(maxLeft, Math.max(margin, dragState.startLeft + dx));
+      const nextTop = Math.min(maxTop, Math.max(margin, dragState.startTop + dy));
+      fab.style.left = `${nextLeft}px`;
+      fab.style.top = `${nextTop}px`;
+      fab.style.right = 'auto';
+      fab.style.bottom = 'auto';
+    });
+
+    const endDrag = (event) => {
+      if (!dragState) return;
+      fab.classList.remove('is-dragging');
+      if (dragState.moved) {
+        fab.dataset.dragging = 'true';
+        setTimeout(() => {
+          fab.dataset.dragging = 'false';
+        }, 150);
+      } else {
+        fab.dataset.dragging = 'false';
+      }
+      dragState = null;
+      try {
+        fab.releasePointerCapture(event.pointerId);
+      } catch (e) {
+        // noop
+      }
+    };
+
+    fab.addEventListener('pointerup', endDrag);
+    fab.addEventListener('pointercancel', endDrag);
+
+    window.addEventListener('resize', () => {
+      if (fab.style.left || fab.style.top) {
+        clampHomeConsultFab(fab);
+      }
+    });
+  }
+
   function getPetalScale() {
     const base = Math.min(window.innerWidth || 0, window.innerHeight || 0);
     if (!base) return 1;
@@ -131,6 +249,7 @@
     initLoadingOverlay();
     updateNetworkStatus();
     initThemeToggle();
+    initHomeConsult();
   });
   window.addEventListener('resize', handleResize);
   window.addEventListener('online', updateNetworkStatus);

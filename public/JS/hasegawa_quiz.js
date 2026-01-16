@@ -121,9 +121,9 @@
     }
 
     function initThemeToggle() {
+      applyTheme(getPreferredTheme(), false);
       const button = document.getElementById('themeToggleBtn');
       if (!button) return;
-      applyTheme(getPreferredTheme(), false);
       button.addEventListener('click', () => {
         const isDark = document.body.classList.contains('theme-dark');
         applyTheme(isDark ? 'light' : 'dark');
@@ -233,14 +233,42 @@
       startBtn.disabled = !isReady;
     }
 
+    let consultHideTimer = null;
+
     function setConsultOpen(isOpen) {
       const sheet = document.getElementById('consultSheet');
       const backdrop = document.getElementById('consultBackdrop');
       const button = document.getElementById('consultFab');
-      document.body.classList.toggle('consult-open', Boolean(isOpen));
-      if (sheet) sheet.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-      if (backdrop) backdrop.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-      if (button) button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      const openState = Boolean(isOpen);
+
+      if (consultHideTimer) {
+        clearTimeout(consultHideTimer);
+        consultHideTimer = null;
+      }
+
+      if (openState) {
+        if (sheet) sheet.hidden = false;
+        if (backdrop) backdrop.hidden = false;
+        requestAnimationFrame(() => {
+          document.body.classList.add('consult-open');
+        });
+      } else {
+        document.body.classList.remove('consult-open');
+        const shouldDelayHide = (sheet && !sheet.hidden) || (backdrop && !backdrop.hidden);
+        if (shouldDelayHide) {
+          consultHideTimer = setTimeout(() => {
+            if (sheet) sheet.hidden = true;
+            if (backdrop) backdrop.hidden = true;
+          }, 260);
+        } else {
+          if (sheet) sheet.hidden = true;
+          if (backdrop) backdrop.hidden = true;
+        }
+      }
+
+      if (sheet) sheet.setAttribute('aria-hidden', openState ? 'false' : 'true');
+      if (backdrop) backdrop.setAttribute('aria-hidden', openState ? 'false' : 'true');
+      if (button) button.setAttribute('aria-expanded', openState ? 'true' : 'false');
     }
 
     function clampConsultFab(fab, margin = 12) {
@@ -793,22 +821,14 @@
       // イントロ画面を隠す
       document.getElementById('introSection').style.display = 'none';
 
-      // 生年月日不明フラグが立っている場合: 設問1をスキップして問1が0点となる旨を通知
-      if (birthUnknown) {
-        // q1SkipNotice に説明を表示
-        const notice = document.getElementById('q1SkipNotice');
-        if (notice) {
-          notice.innerHTML = '<div class="alert alert-warning"><strong>注意：</strong>生年月日が不明瞭なため、設問1は自動的に「0点」として扱いました。保険証等で確認できる場合は必ず確認してください。</div>';
-        }
-        // 直接設問2を開く
-        $('#modalQuestion2').modal('show');
-      } else {
-        // 設問1を開く
-        $('#modalQuestion1').modal('show');
+      // 設問1を開く
+      $('#modalQuestion1').modal('show');
 
-        // 設問1モーダルの文言に"計算した年齢"を表示
-        if (correctAge !== null) {
-          document.getElementById('calculatedAgeDisplay').textContent = String(correctAge);
+      // 設問1モーダルの文言に"計算した年齢"を表示
+      if (correctAge !== null) {
+        const display = document.getElementById('calculatedAgeDisplay');
+        if (display) {
+          display.textContent = String(correctAge);
         }
       }
       saveState();
@@ -937,6 +957,25 @@
       }
     }
 
+    let q8LoadingTimer = null;
+
+    function showQ8Loading() {
+      if (q8LoadingTimer) {
+        clearTimeout(q8LoadingTimer);
+      }
+      q8LoadingTimer = setTimeout(() => {
+        setLoading(true, '画像を読み込み中...');
+      }, 200);
+    }
+
+    function hideQ8Loading() {
+      if (q8LoadingTimer) {
+        clearTimeout(q8LoadingTimer);
+        q8LoadingTimer = null;
+      }
+      setLoading(false);
+    }
+
     function renderQ8Current() {
       ensureQ8Order();
       const item = q8Items[q8Index];
@@ -947,12 +986,12 @@
       if (nameEl) nameEl.textContent = item.name;
 
       if (imgEl) {
-        setLoading(true, '画像を読み込み中...');
+        showQ8Loading();
         imgEl.onload = function() {
-          setLoading(false);
+          hideQ8Loading();
         };
         imgEl.onerror = function() {
-          setLoading(false);
+          hideQ8Loading();
           if (fallbackEl) {
             fallbackEl.textContent = item.name;
             fallbackEl.style.display = 'flex';
@@ -1559,5 +1598,3 @@
       resetQuiz();
       window.location.replace(window.location.origin + '/');
     }
-
-

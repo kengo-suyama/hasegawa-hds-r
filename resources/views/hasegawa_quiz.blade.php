@@ -149,6 +149,8 @@
       border: 2px dashed var(--accent);
       background: var(--accent-soft);
       box-shadow: 0 10px 22px rgba(178, 79, 110, 0.12);
+      flex-wrap: wrap;
+      padding-left: 0.9rem;
     }
 
     .precheck-confirm.is-attention {
@@ -165,14 +167,21 @@
       font-size: 1.25rem;
       color: var(--primary-strong);
       margin-bottom: 0;
+      margin-left: 0.35rem;
+      flex: 1 1 0;
+      min-width: 0;
+      line-height: 1.4;
     }
 
     .precheck-confirm .form-check-input {
+      position: static;
       margin-top: 0;
+      margin-left: 0;
       transform: scale(1.4);
       box-shadow: 0 0 0 3px rgba(178, 79, 110, 0.22);
       border-color: var(--primary);
       cursor: pointer;
+      flex: 0 0 auto;
     }
 
     .precheck-confirm .form-check-input:checked {
@@ -456,6 +465,10 @@
       margin-top: 0.4rem;
       font-size: 1.05rem;
       color: var(--ink-muted);
+    }
+
+    #q1CorrectAge {
+      margin-bottom: 8px;
     }
 
     .q7-score-grid {
@@ -1458,7 +1471,6 @@
         height: 120px;
       }
 
-      #startQuizBtn,
       #q8NextBtn,
       button[data-action="submit-q7"],
       button[data-action="q8-submit"] {
@@ -1618,27 +1630,11 @@
     <div class="loading-spinner" aria-hidden="true"></div>
     <div class="loading-text">読み込み中...</div>
   </div>
-  <div class="theme-toggle">
-    <button type="button" class="btn btn-outline-primary" id="themeToggleBtn">ダークモード</button>
-  </div>
-  <button
-    type="button"
-    class="consult-fab"
-    id="consultFab"
-    data-action="toggle-consult"
-    aria-controls="consultSheet"
-    aria-expanded="false"
-    aria-label="各種相談を開く"
-    hidden>
-    <span class="consult-fab-label">各種相談</span>
-    <span class="consult-fab-icon"><i class="fas fa-hands-helping" aria-hidden="true"></i></span>
-  </button>
   <div id="consultBackdrop" class="consult-backdrop" data-action="close-consult" aria-hidden="true" hidden></div>
   <section id="consultSheet" class="consult-sheet" role="dialog" aria-modal="true" aria-label="各種相談" hidden>
     <div class="consult-sheet-header">
       <div class="consult-sheet-handle" aria-hidden="true"></div>
       <div class="consult-sheet-title">各種相談</div>
-      <button type="button" class="consult-sheet-close" data-action="close-consult" aria-label="閉じる">×</button>
     </div>
     <div class="consult-sheet-body">
       <details class="consult-item">
@@ -1882,27 +1878,17 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">設問1: 年齢を答えてください。</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <h5 class="modal-title">設問1</h5>
         </div>
         <div class="modal-body">
-          <!-- 計算した年齢をここに表示 -->
-          <div class="question" id="q1Question">
-            <p>
-              先ほど計算した年齢は
-              <span id="calculatedAgeDisplay" style="font-weight:bold;"></span>
-              歳ですね。<br />
-              受検者が答えた年齢がこの年齢 ±2 以内なら「正解」ボタン、<br />
-              それ以外なら「不正解」ボタンを押してください。
-            </p>
+          <div id="q1CorrectAge" class="alert alert-light">
+            先ほど計算した年齢は
+            <span id="calculatedAgeDisplay" style="font-weight:bold;"></span>
+            歳ですね。
           </div>
-          <div class="helper-note mb-3">※設問1の年齢確認は原則18歳（成人）以上を対象にしてください。</div>
+          <div class="question" id="q1Question">
+            <p>あなたの年齢を答えてください。</p>
+          </div>
           <!-- 2ボタンのみ -->
           <button
             class="btn btn-outline-primary btn-block mb-2"
@@ -1946,13 +1932,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="modalQuestion2Label">設問2</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <!-- Q1スキップ通知領域（必要時にJSで内容を挿入） -->
@@ -2033,12 +2012,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">設問3</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <div class="question" id="q3Question">
@@ -2094,12 +2067,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">設問4</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <div class="question" id="q4Question">
@@ -2170,12 +2137,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">設問5</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <div class="question" id="q5Question">
@@ -2227,12 +2188,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">設問6</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <div class="question" id="q6Question">
@@ -2284,12 +2239,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">設問7</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <div class="question" id="q7Question">
@@ -2370,13 +2319,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">設問8</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
 
         <div class="modal-body">
@@ -2479,13 +2421,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">設問9</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <div class="question" id="q9Question">
@@ -2550,9 +2485,6 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">結果</h5>
-          <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
-          </button>
         </div>
         <div class="modal-body">
           <h4 id="scoreDisplay" class="text-center"></h4>
