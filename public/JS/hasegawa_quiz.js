@@ -94,6 +94,16 @@
     }
 
     const THEME_KEY = 'careMateTheme';
+    const THEME_COLORS = {
+      light: '#f2c6d8',
+      dark: '#2b1c22'
+    };
+
+    function updateThemeColor(theme) {
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (!meta) return;
+      meta.setAttribute('content', theme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light);
+    }
 
     function getPreferredTheme() {
       const saved = localStorage.getItem(THEME_KEY);
@@ -111,6 +121,7 @@
         document.body.classList.toggle('theme-dark', theme === 'dark');
         document.body.classList.toggle('theme-light', theme === 'light');
       }
+      updateThemeColor(theme);
       const button = document.getElementById('themeToggleBtn');
       if (button) {
         button.textContent = theme === 'dark' ? 'ライトモード' : 'ダークモード';
@@ -130,11 +141,19 @@
       });
     }
 
+    function registerServiceWorker() {
+      if (!('serviceWorker' in navigator)) return;
+      navigator.serviceWorker.register('/service-worker.js').catch(() => {
+        // noop
+      });
+    }
+
     $(function() {
       initPetalFall();
       scheduleInitialLoading();
       updateNetworkStatus();
       initThemeToggle();
+      registerServiceWorker();
       let resizeTimer = null;
       $(window).on('resize', function() {
         if (resizeTimer) clearTimeout(resizeTimer);
@@ -499,7 +518,7 @@
     function renderQ1SkipNotice() {
       const notice = document.getElementById('q1SkipNotice');
       if (notice) {
-        notice.innerHTML = '<div class="alert alert-warning"><strong>注意：</strong>生年月日が不明瞭なため、設問1は自動的に「0点」として扱いました。保険証等で確認できる場合は必ず確認してください。</div>';
+        notice.innerHTML = '<div class="alert alert-warning"><strong>注意:</strong>生年月日が不明瞭なため、設問１は自動的に「０」として扱いました。保険証等で確認できる場合は必ず確認してください。</div>';
       }
     }
 
@@ -820,6 +839,13 @@
       q8RetryUsed = false;
       // イントロ画面を隠す
       document.getElementById('introSection').style.display = 'none';
+
+      if (birthUnknown) {
+        renderQ1SkipNotice();
+        $('#modalQuestion2').modal('show');
+        saveState();
+        return;
+      }
 
       // 設問1を開く
       $('#modalQuestion1').modal('show');
@@ -1300,6 +1326,13 @@
           } catch (e) {
             // noop
           }
+        }
+
+        if (birthUnknown) {
+          renderQ1SkipNotice();
+        } else {
+          const notice = document.getElementById('q1SkipNotice');
+          if (notice) notice.innerHTML = '';
         }
       });
 

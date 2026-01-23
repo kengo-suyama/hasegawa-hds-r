@@ -4,6 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2c6d8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+  <link rel="apple-touch-icon" href="{{ asset('storage/pwa/icon-192.png') }}">
 
   <!-- Bootstrap & Font Awesome -->
   <link
@@ -1481,67 +1486,10 @@
     }
 
     @media (min-width: 768px) and (max-width: 1023px) {
-      .modal-body {
-        display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-        gap: 1.1rem 1.4rem;
-        align-items: start;
-      }
-
-      .modal-body > * {
-        min-width: 0;
-      }
-
+      .modal-body,
       #question8Step1,
       #question8Step2 {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-        gap: 1.1rem 1.4rem;
-      }
-
-      #question8Step1 .question,
-      #question8Step2 .question,
-      #question8Step2 p,
-      #question8Step2 .advice,
-      #question8Step2 .extra-info {
-        grid-column: 1;
-      }
-
-      #question8Step1 .q8-current,
-      #question8Step1 .q8-controls,
-      #question8Step2 .form-control,
-      #question8Step2 .btn {
-        grid-column: 2;
-      }
-
-      .modal-body > .question,
-      .modal-body > .advice,
-      .modal-body > .extra-info,
-      .modal-body > .helper-note,
-      .modal-body > .recall-panel,
-      .modal-body > .word-set-panel,
-      .modal-body > .q3-hint,
-      .modal-body > .q3-countdown,
-      .modal-body > .result-summary,
-      .modal-body > .result-audience-panel,
-      .modal-body > .result-block,
-      .modal-body > #q1SkipNotice,
-      .modal-body > #q2CorrectDate,
-      .modal-body > p {
-        grid-column: 1;
-      }
-
-      .modal-body > .btn,
-      .modal-body > .form-row,
-      .modal-body > .form-control,
-      .modal-body > select.form-control,
-      .modal-body > .q7-score-grid,
-      .modal-body > .q8-current,
-      .modal-body > .q8-controls,
-      .modal-body > .q8-review,
-      .modal-body > .vegetable-grid {
-        grid-column: 2;
+        display: block;
       }
 
       .q7-score-select,

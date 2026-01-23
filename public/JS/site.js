@@ -1,6 +1,16 @@
 // site.js: サイト共通の JS（花びら演出）
 (function() {
   const THEME_KEY = 'careMateTheme';
+  const THEME_COLORS = {
+    light: '#f2c6d8',
+    dark: '#2b1c22'
+  };
+
+  function updateThemeColor(theme) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) return;
+    meta.setAttribute('content', theme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light);
+  }
 
   function getPreferredTheme() {
     const saved = localStorage.getItem(THEME_KEY);
@@ -18,6 +28,7 @@
       document.body.classList.toggle('theme-dark', theme === 'dark');
       document.body.classList.toggle('theme-light', theme === 'light');
     }
+    updateThemeColor(theme);
     const button = document.getElementById('themeToggleBtn');
     if (button) {
       button.textContent = theme === 'dark' ? 'ライトモード' : 'ダークモード';
@@ -28,9 +39,9 @@
   }
 
   function initThemeToggle() {
+    applyTheme(getPreferredTheme(), false);
     const button = document.getElementById('themeToggleBtn');
     if (!button) return;
-    applyTheme(getPreferredTheme(), false);
     button.addEventListener('click', () => {
       const isDark = document.body.classList.contains('theme-dark');
       applyTheme(isDark ? 'light' : 'dark');
@@ -238,6 +249,13 @@
     }, { once: true });
   }
 
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {
+      // noop
+    });
+  }
+
   let resizeTimer = null;
   function handleResize() {
     if (resizeTimer) clearTimeout(resizeTimer);
@@ -250,6 +268,7 @@
     updateNetworkStatus();
     initThemeToggle();
     initHomeConsult();
+    registerServiceWorker();
   });
   window.addEventListener('resize', handleResize);
   window.addEventListener('online', updateNetworkStatus);
