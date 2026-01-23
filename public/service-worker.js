@@ -1,11 +1,11 @@
-const CACHE_NAME = 'care-mate-v3';
+const CACHE_NAME = 'care-mate-v4';
 const CORE_ASSETS = [
   '/',
   '/quiz',
   '/css/site.css',
   '/JS/site.js',
   '/JS/hasegawa_quiz.js',
-  '/manifest.webmanifest?v=20260123',
+  '/manifest.json?v=20260123',
   '/storage/pwa/icon-192.png?v=20260123',
   '/storage/pwa/icon-512.png?v=20260123'
 ];
