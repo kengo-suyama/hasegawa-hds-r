@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#f2c6d8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
-    <link rel="apple-touch-icon" href="{{ asset('storage/pwa/icon-192.png') }}">
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}?v=20260123">
+    <link rel="apple-touch-icon" href="{{ asset('storage/pwa/icon-192.png') }}?v=20260123">
     <title>自己紹介</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

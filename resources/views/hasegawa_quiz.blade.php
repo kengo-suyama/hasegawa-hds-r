@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#f2c6d8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
-  <link rel="apple-touch-icon" href="{{ asset('storage/pwa/icon-192.png') }}">
+  <link rel="manifest" href="{{ asset('manifest.webmanifest') }}?v=20260123">
+  <link rel="apple-touch-icon" href="{{ asset('storage/pwa/icon-192.png') }}?v=20260123">
 
   <!-- Bootstrap & Font Awesome -->
   <link

@@ -1,13 +1,13 @@
-const CACHE_NAME = 'care-mate-v1';
+const CACHE_NAME = 'care-mate-v3';
 const CORE_ASSETS = [
   '/',
   '/quiz',
   '/css/site.css',
   '/JS/site.js',
   '/JS/hasegawa_quiz.js',
-  '/manifest.webmanifest',
-  '/storage/pwa/icon-192.png',
-  '/storage/pwa/icon-512.png'
+  '/manifest.webmanifest?v=20260123',
+  '/storage/pwa/icon-192.png?v=20260123',
+  '/storage/pwa/icon-512.png?v=20260123'
 ];
 
 self.addEventListener('install', (event) => {
